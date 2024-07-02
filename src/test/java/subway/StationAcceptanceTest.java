@@ -27,7 +27,6 @@ public class StationAcceptanceTest {
     @Test
     void createStation() {
         // when
-
         ExtractableResponse<Response> response = this.createStation("강남역");
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
@@ -84,9 +83,7 @@ public class StationAcceptanceTest {
 
 
     private ExtractableResponse<Response> createStation(String name) {
-        // when
-        Map<String, String> params = new HashMap<>();
-        params.put("name", name);
+        Map<String, String> params = Map.of("name" ,name);
 
         return RestAssured.given().log().all()
                 .body(params)
