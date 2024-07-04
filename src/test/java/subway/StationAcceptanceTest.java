@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,11 +31,7 @@ public class StationAcceptanceTest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
 
         // then
-        List<String> stationNames =
-                RestAssured.given().log().all()
-                        .when().get("/stations")
-                        .then().log().all()
-                        .extract().jsonPath().getList("name", String.class);
+        List<String> stationNames = getStationNames();
         assertThat(stationNames).containsAnyOf("강남역");
     }
 
@@ -48,11 +43,7 @@ public class StationAcceptanceTest {
         this.createStation("선릉역");
 
         // When 지하철역 목록을 조회하면
-        List<String> stationNames =
-                RestAssured.given().log().all()
-                        .when().get("/stations")
-                        .then().log().all()
-                        .extract().jsonPath().getList("name", String.class);
+        List<String> stationNames = this.getStationNames();
 
         // Then 2개의 지하철역을 응답 받는다
         assertThat(stationNames).containsOnly("강남역", "선릉역");
@@ -69,28 +60,32 @@ public class StationAcceptanceTest {
         // When 그중 하나의 지하철역을 삭제하면
         RestAssured.given().log().all()
                 .when().delete("/stations/{id}", id)
-                .then().log().all();
+                .then().log().all()
+                .statusCode(HttpStatus.NO_CONTENT.value());
 
         // Then 나머지 1개의 지하철역만 응답받는다
-        List<String> stationNames =
-                RestAssured.given().log().all()
-                        .when().get("/stations")
-                        .then().log().all()
-                        .extract().jsonPath().getList("name", String.class);
+        List<String> stationNames = this.getStationNames();
 
         assertThat(stationNames).containsOnly("선릉역");
     }
 
-
     private ExtractableResponse<Response> createStation(String name) {
-        Map<String, String> params = Map.of("name" ,name);
+        Map<String, String> params = Map.of("name", name);
 
         return RestAssured.given().log().all()
                 .body(params)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/stations")
                 .then().log().all()
+                .statusCode(HttpStatus.CREATED.value())
                 .extract();
     }
 
+    private List<String> getStationNames() {
+        return RestAssured.given().log().all()
+                .when().get("/stations")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract().jsonPath().getList("name", String.class);
+    }
 }
