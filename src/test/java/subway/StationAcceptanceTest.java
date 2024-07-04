@@ -54,12 +54,12 @@ public class StationAcceptanceTest {
     @Test
     void deleteStation() {
         // Given 지하철역을 2개를 생성하고
-        Long id = this.createStation("강남역").jsonPath().getLong("id");
+        String location = this.createStation("강남역").header("location");
         this.createStation("선릉역");
 
         // When 그중 하나의 지하철역을 삭제하면
         RestAssured.given().log().all()
-                .when().delete("/stations/{id}", id)
+                .when().delete(location)
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value());
 
