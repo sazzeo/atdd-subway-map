@@ -24,13 +24,13 @@ public class LineAcceptanceTest {
         @Test
         void createLine() {
             // Given 노선을 생성하면
-            var lineFixture = LineFixture.create();
+            var lineRequest = LineFixture.create("2호선", "bg-green-600", 1L, 2L,10L );
 
             // Then 신규 노선이 생성된다.
             var extractableResponse = RestAssured.given().log().all()
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .basePath(URL_PREFIX)
-                    .body(lineFixture)
+                    .body(lineRequest)
                     .when().post()
                     .then().log().all()
                     .statusCode(HttpStatus.CREATED.value())
@@ -41,9 +41,9 @@ public class LineAcceptanceTest {
 
             //Then 생성된 노선을 응답받는다.
             assertAll(() -> {
-                assertThat(jsonPath.getString("color")).isEqualTo(lineFixture.get("color"));
-                assertThat(jsonPath.getString("name")).isEqualTo(lineFixture.get("name"));
-                assertThat(jsonPath.getList("stations.id")).containsAnyOf(lineFixture.get("upStationId"), lineFixture.get("downStationId"));
+                assertThat(jsonPath.getString("color")).isEqualTo(lineRequest.getColor());
+                assertThat(jsonPath.getString("name")).isEqualTo(lineRequest.getName());
+                assertThat(jsonPath.getList("stations.id" , Long.TYPE)).containsAnyOf(lineRequest.getUpStationId(), lineRequest.getDownStationId());
             });
 
         }

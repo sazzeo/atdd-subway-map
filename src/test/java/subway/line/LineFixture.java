@@ -1,15 +1,14 @@
 package subway.line;
 
-import java.util.Map;
+import subway.line.payload.CreateLineRequest;
 
 public class LineFixture {
 
-  public static Map<String, Object> create() {
-    return  Map.of("name", "2호선",
-        "color", "bg-green-600",
-        "upStationId", 1,
-        "downStationId", 2,
-        "distance", 10);
-  }
+    public static CreateLineRequest create(String name, String color, Long upStationId, Long downStationId, Long distance) {
+        return new CreateLineRequest(
+                name, color, upStationId, downStationId, distance
+        );
+
+    }
 
 }
