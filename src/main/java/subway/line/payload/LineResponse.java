@@ -1,7 +1,5 @@
 package subway.line.payload;
 
-import subway.station.StationResponse;
-
 import java.util.List;
 
 public class LineResponse {
@@ -36,4 +34,5 @@ public class LineResponse {
     public List<LineStationResponse> getStations() {
         return stations;
     }
+
 }

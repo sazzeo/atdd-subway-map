@@ -112,10 +112,10 @@ public class LineAcceptanceTest {
             //When 노선을 수정한 뒤
             RestAssured.given().log().all()
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(new UpdateLineRequest("다른호선" , "ㅊ"))
+                    .body(new UpdateLineRequest("다른호선" , "red"))
                     .when().patch(location)
                     .then().log().all()
-                    .statusCode(HttpStatus.OK.value())
+                    .statusCode(HttpStatus.NO_CONTENT.value())
                     .extract().response().jsonPath();
 
             //When 조회하면

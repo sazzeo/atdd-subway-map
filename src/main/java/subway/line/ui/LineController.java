@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
+import subway.line.payload.UpdateLineRequest;
 import subway.line.service.LineService;
 
 import java.net.URI;
@@ -13,26 +14,32 @@ import java.util.List;
 @RestController
 public class LineController {
 
-  private final LineService lineService;
+    private final LineService lineService;
 
-  public LineController(final LineService lineService) {
-    this.lineService = lineService;
-  }
+    public LineController(final LineService lineService) {
+        this.lineService = lineService;
+    }
 
-  @PostMapping
-  public ResponseEntity<LineResponse> createLine(@RequestBody CreateLineRequest request) {
-    var response = lineService.saveLine(request);
-    return ResponseEntity.created(URI.create("/lines/" + response.getId())).body(response);
-  }
+    @PostMapping
+    public ResponseEntity<LineResponse> createLine(@RequestBody CreateLineRequest request) {
+        var response = lineService.saveLine(request);
+        return ResponseEntity.created(URI.create("/lines/" + response.getId())).body(response);
+    }
 
-  @GetMapping
-  public ResponseEntity<List<LineResponse>> showLines() {
-    return ResponseEntity.ok(lineService.getLines());
-  }
+    @GetMapping
+    public ResponseEntity<List<LineResponse>> showLines() {
+        return ResponseEntity.ok(lineService.getLines());
+    }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
-    return ResponseEntity.ok(lineService.getById(id));
-  }
+    @GetMapping("/{id}")
+    public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
+        return ResponseEntity.ok(lineService.getById(id));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateLine(@PathVariable Long id, @RequestBody UpdateLineRequest request) {
+        lineService.modify(id, request);
+        return ResponseEntity.noContent().build();
+    }
 
 }

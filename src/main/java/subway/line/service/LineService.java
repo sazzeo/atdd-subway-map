@@ -7,6 +7,7 @@ import subway.line.domain.LineStation;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
 import subway.line.payload.LineStationResponse;
+import subway.line.payload.UpdateLineRequest;
 import subway.line.repository.LineRepository;
 import subway.line.repository.LineStationRepository;
 
@@ -49,11 +50,21 @@ public class LineService {
 
 
     public LineResponse getById(final Long id) {
-        var line = lineRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
+        var line = getLineById(id);
         var stations = lineStationRepository.findByLineId(line.getId());
         return this.createLineResponse(line, stations);
+    }
 
+
+    @Transactional
+    public void modify(final Long id, final UpdateLineRequest request) {
+        var line = getLineById(id);
+        line.update(request.getName(), request.getColor());
+    }
+
+    private Line getLineById(final Long id) {
+        return lineRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
     }
 
     private LineResponse createLineResponse(final Line line, final List<LineStation> stations) {
@@ -72,5 +83,6 @@ public class LineService {
     private List<LineStation> getLineStationsByLineId(final Long lineId) {
         return lineStationRepository.findByLineId(lineId);
     }
+
 
 }
