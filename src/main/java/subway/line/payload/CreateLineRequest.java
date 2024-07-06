@@ -1,33 +1,39 @@
 package subway.line.payload;
 
+import subway.line.domain.Line;
+
 public class CreateLineRequest {
 
-  private String name;
-  private String color;
-  private Long upStationId;
-  private Long downStationId;
-  private Long distance;
+    private String name;
+    private String color;
+    private Long upStationId;
+    private Long downStationId;
+    private Long distance;
 
-  public CreateLineRequest() {
-  }
+    public Line toEntity() {
+        return new Line(this.name, this.color, this.upStationId, this.downStationId, this.distance);
+    }
 
-  public String getName() {
-    return name;
-  }
+    public CreateLineRequest() {
+    }
 
-  public String getColor() {
-    return color;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public Long getUpStationId() {
-    return upStationId;
-  }
+    public String getColor() {
+        return color;
+    }
 
-  public Long getDownStationId() {
-    return downStationId;
-  }
+    public Long getUpStationId() {
+        return upStationId;
+    }
 
-  public Long getDistance() {
-    return distance;
-  }
+    public Long getDownStationId() {
+        return downStationId;
+    }
+
+    public Long getDistance() {
+        return distance;
+    }
 }

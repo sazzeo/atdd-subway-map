@@ -1,31 +1,39 @@
 package subway.line.payload;
 
+import subway.station.StationResponse;
+
+import java.util.List;
+
 public class LineResponse {
 
-  private String name;
-  private String color;
-  private Long upStationId;
-  private Long downStationId;
-  private Long distance;
+    private Long id;
+    private String name;
+    private String color;
+    private List<StationResponse> stations;
 
-  public String getName() {
-    return name;
-  }
+    public LineResponse() {
+    }
 
-  public String getColor() {
-    return color;
-  }
+    public LineResponse(final Long id, final String name, final String color, final List<StationResponse> stations) {
+        this.id = id;
+        this.name = name;
+        this.color = color;
+        this.stations = stations;
+    }
 
-  public Long getUpStationId() {
-    return upStationId;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public Long getDownStationId() {
-    return downStationId;
-  }
+    public String getName() {
+        return name;
+    }
 
-  public Long getDistance() {
-    return distance;
-  }
+    public String getColor() {
+        return color;
+    }
 
+    public List<StationResponse> getStations() {
+        return stations;
+    }
 }
