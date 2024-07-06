@@ -3,10 +3,12 @@ package subway.line.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.line.domain.Line;
+import subway.line.domain.LineStation;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
+import subway.line.payload.LineStationResponse;
 import subway.line.repository.LineRepository;
-import subway.station.StationResponse;
+import subway.line.repository.LineStationRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,17 +19,24 @@ import java.util.stream.Collectors;
 public class LineService {
 
     private final LineRepository lineRepository;
+    private final LineStationRepository lineStationRepository;
 
-    public LineService(final LineRepository lineRepository) {
+    public LineService(final LineRepository lineRepository, final LineStationRepository lineStationRepository) {
         this.lineRepository = lineRepository;
+        this.lineStationRepository = lineStationRepository;
     }
 
     @Transactional
     public LineResponse saveLine(CreateLineRequest request) {
         Line line = lineRepository.save(request.toEntity());
-        List<StationResponse> stations = createStations(request);
+        var upStation = new LineStation(line.getId(), request.getUpStationId());
+        var downStation = new LineStation(line.getId(), request.getDownStationId());
+        lineStationRepository.saveAll(List.of(upStation, downStation));
+        var lineStations = lineStationRepository.findByLineId(line.getId()).stream().map(
+                this::createLineStationResponse
+        ).collect(Collectors.toList());
 
-        return this.createLineResponse(line, stations);
+        return this.createLineResponse(line, lineStations);
     }
 
     public List<LineResponse> getLines() {
@@ -36,12 +45,12 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
-    private LineResponse createLineResponse(final Line line, final List<StationResponse> stations) {
+    private LineResponse createLineResponse(final Line line, final List<LineStationResponse> stations) {
         return new LineResponse(line.getId(), line.getName(), line.getColor(), stations);
     }
 
-    private List<StationResponse> createStations(final CreateLineRequest request) {
-        return List.of(new StationResponse(request.getUpStationId(), "시청"),
-                new StationResponse(request.getDownStationId(), "충정로"));
+    private LineStationResponse createLineStationResponse(LineStation lineStation) {
+        return new LineStationResponse(lineStation.getId(), "지하철역");
     }
+
 }

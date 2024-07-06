@@ -9,12 +9,12 @@ public class LineResponse {
     private Long id;
     private String name;
     private String color;
-    private List<StationResponse> stations;
+    private List<LineStationResponse> stations;
 
     public LineResponse() {
     }
 
-    public LineResponse(final Long id, final String name, final String color, final List<StationResponse> stations) {
+    public LineResponse(final Long id, final String name, final String color, final List<LineStationResponse> stations) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -33,7 +33,7 @@ public class LineResponse {
         return color;
     }
 
-    public List<StationResponse> getStations() {
+    public List<LineStationResponse> getStations() {
         return stations;
     }
 }
