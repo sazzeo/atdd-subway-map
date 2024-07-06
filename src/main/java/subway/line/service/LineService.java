@@ -29,15 +29,12 @@ public class LineService {
     @Transactional
     public LineResponse saveLine(CreateLineRequest request) {
         Line line = lineRepository.save(request.toEntity());
-        var upStation = new LineStation(line.getId(), request.getUpStationId());
-        var downStation = new LineStation(line.getId(), request.getDownStationId());
-        lineStationRepository.saveAll(List.of(upStation, downStation));
-        var lineStations = lineStationRepository.findByLineId(line.getId()).stream().map(
-                this::createLineStationResponse
-        ).collect(Collectors.toList());
+        this.saveLineStation(request, line.getId());
+        var lineStations = getLineStationsByLineId(line.getId());
 
         return this.createLineResponse(line, lineStations);
     }
+
 
     public List<LineResponse> getLines() {
         return lineRepository.findAll().stream()
@@ -51,6 +48,18 @@ public class LineService {
 
     private LineStationResponse createLineStationResponse(LineStation lineStation) {
         return new LineStationResponse(lineStation.getId(), "지하철역");
+    }
+
+    private void saveLineStation(final CreateLineRequest request, final Long lindId) {
+        var upStation = new LineStation(lindId, request.getUpStationId());
+        var downStation = new LineStation(lindId, request.getDownStationId());
+        lineStationRepository.saveAll(List.of(upStation, downStation));
+    }
+
+    private List<LineStationResponse> getLineStationsByLineId(final Long lineId) {
+        return lineStationRepository.findByLineId(lineId).stream().map(
+                this::createLineStationResponse
+        ).collect(Collectors.toList());
     }
 
 }
