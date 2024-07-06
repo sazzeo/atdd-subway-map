@@ -148,12 +148,8 @@ public class LineAcceptanceTest {
                     .statusCode(HttpStatus.NO_CONTENT.value())
                     .extract();
 
-            //When 다시 조회하면
-            var jsonPath = getLine(location);
-
-            //Then 노선이 조회되지 않는다.
-
-            //TODO: 빈값 검증 메소드
+            //Then 다시 조회하면 노선이 조회되지 않는다.
+            getLine(location, HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -177,6 +173,15 @@ public class LineAcceptanceTest {
                 .when().get(location)
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
+                .extract();
+    }
+
+    private ExtractableResponse<Response> getLine(final String location , int statusCode) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get(location)
+                .then().log().all()
+                .statusCode(statusCode)
                 .extract();
     }
 
