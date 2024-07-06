@@ -47,6 +47,15 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
+
+    public LineResponse getById(final Long id) {
+        var line = lineRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
+        var stations = lineStationRepository.findByLineId(line.getId());
+        return this.createLineResponse(line, stations);
+
+    }
+
     private LineResponse createLineResponse(final Line line, final List<LineStation> stations) {
         return new LineResponse(line.getId(), line.getName(), line.getColor(),
                 stations.stream()

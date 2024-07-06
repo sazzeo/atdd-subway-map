@@ -1,7 +1,7 @@
 package subway.line.ui;
 
 import org.springframework.http.ResponseEntity;
-`import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.*;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
 import subway.line.service.LineService;
@@ -28,6 +28,11 @@ public class LineController {
   @GetMapping
   public ResponseEntity<List<LineResponse>> showLines() {
     return ResponseEntity.ok(lineService.getLines());
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<LineResponse> showLine(@PathVariable Long id) {
+    return ResponseEntity.ok(lineService.getById(id));
   }
 
 }
