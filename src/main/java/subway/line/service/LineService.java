@@ -62,6 +62,12 @@ public class LineService {
         line.update(request.getName(), request.getColor());
     }
 
+    @Transactional
+    public void delete(final Long id) {
+        var line = getLineById(id);
+        lineRepository.delete(line);
+    }
+
     private Line getLineById(final Long id) {
         return lineRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
@@ -83,6 +89,5 @@ public class LineService {
     private List<LineStation> getLineStationsByLineId(final Long lineId) {
         return lineStationRepository.findByLineId(lineId);
     }
-
 
 }
