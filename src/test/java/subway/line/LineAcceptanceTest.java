@@ -116,7 +116,7 @@ public class LineAcceptanceTest {
                     .when().patch(location)
                     .then().log().all()
                     .statusCode(HttpStatus.NO_CONTENT.value())
-                    .extract().response().jsonPath();
+                    .extract();
 
             //When 조회하면
             var jsonPath = getLine(location).response().jsonPath();
@@ -130,6 +130,32 @@ public class LineAcceptanceTest {
 
     }
 
+    @Nested
+    class WhenDelete {
+
+        @DisplayName("삭제하려는 노선이 존재하면 삭제된 뒤 조회되지 않는다.")
+        @Test
+        void deleteLine() {
+            //Given 노선을 생성하고
+            var response = createLine("2호선", "bg-green-600", 1L, 2L, 10L);
+            var location = response.header(HttpHeaders.LOCATION);
+
+            //When 노선을 삭제한뒤
+            RestAssured.given().log().all()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .when().delete(location)
+                    .then().log().all()
+                    .statusCode(HttpStatus.NO_CONTENT.value())
+                    .extract();
+
+            //When 다시 조회하면
+            var jsonPath = getLine(location);
+
+            //Then 노선이 조회되지 않는다.
+
+            //TODO: 빈값 검증 메소드
+        }
+    }
 
     private Response createLine(final String name, final String color, final Long upStationId, final Long downStationId, final Long distance) {
         var extractableResponse = RestAssured.given().log().all()
