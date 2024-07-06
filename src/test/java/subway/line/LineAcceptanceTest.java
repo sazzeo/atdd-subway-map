@@ -3,7 +3,6 @@ package subway.line;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -117,7 +116,7 @@ public class LineAcceptanceTest {
             //When 노선을 수정한 뒤
             RestAssured.given().log().all()
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(new UpdateLineRequest("다른호선" , "red"))
+                    .body(new UpdateLineRequest("다른호선", "red"))
                     .when().patch(location)
                     .then().log().all()
                     .statusCode(HttpStatus.NO_CONTENT.value())
@@ -146,15 +145,34 @@ public class LineAcceptanceTest {
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 노선을 삭제한뒤
-            RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .when().delete(location)
-                    .then().log().all()
-                    .statusCode(HttpStatus.NO_CONTENT.value())
-                    .extract();
+            deleteLine(location);
 
             //Then 다시 조회하면 노선이 조회되지 않는다.
             getLine(location, HttpStatus.BAD_REQUEST.value());
+        }
+
+        @DisplayName("삭제하려는 노선이 존재하지 않으면 응답코드 400을 반환한다")
+        @Test
+        void deleteLineWhenNotExist() {
+            //When 존재하지 않는 노선을 삭제하면
+            var response = deleteLine(URL_PREFIX + "/0", HttpStatus.BAD_REQUEST.value());
+
+            //Then 404 를 발생시킨다
+            assertThat(response.statusCode()).isEqualTo(400);
+        }
+
+
+        private ExtractableResponse<Response> deleteLine(final String location, int status) {
+            return RestAssured.given().log().all()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .when().delete(location)
+                    .then().log().all()
+                    .statusCode(status)
+                    .extract();
+        }
+
+        private void deleteLine(final String location) {
+            this.deleteLine(location, HttpStatus.NO_CONTENT.value());
         }
     }
 
@@ -181,7 +199,7 @@ public class LineAcceptanceTest {
                 .extract();
     }
 
-    private ExtractableResponse<Response> getLine(final String location , int statusCode) {
+    private ExtractableResponse<Response> getLine(final String location, int statusCode) {
         return RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().get(location)
