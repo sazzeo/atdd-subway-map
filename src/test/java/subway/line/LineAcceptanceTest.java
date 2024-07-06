@@ -1,6 +1,7 @@
 package subway.line;
 
 import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import subway.line.payload.CreateLineRequest;
+import subway.line.payload.UpdateLineRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -81,13 +83,7 @@ public class LineAcceptanceTest {
 
             //When 한 노선을 조회하면
             var location = response.header(HttpHeaders.LOCATION);
-
-            var jsonPath = RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .when().get(location)
-                    .then().log().all()
-                    .statusCode(HttpStatus.OK.value())
-                    .extract().response().jsonPath();
+            var jsonPath = getLine(location).response().jsonPath();
 
             // Then 해당 노선이 조회된다.
 
@@ -97,6 +93,39 @@ public class LineAcceptanceTest {
                 assertThat(jsonPath.getList("stations.id", Long.TYPE)).containsAnyOf(1L, 2L);
             });
 
+        }
+
+
+    }
+
+
+    @Nested
+    class WhenUpdate {
+
+        @DisplayName("노선을 수정한후 조회시 수정된 정보가 반환된다.")
+        @Test
+        void updateLine() {
+            //Given 노선을 생성하고
+            var response = createLine("2호선", "bg-green-600", 1L, 2L, 10L);
+            var location = response.header(HttpHeaders.LOCATION);
+
+            //When 노선을 수정한 뒤
+            RestAssured.given().log().all()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(new UpdateLineRequest("다른호선" , "ㅊ"))
+                    .when().patch(location)
+                    .then().log().all()
+                    .statusCode(HttpStatus.OK.value())
+                    .extract().response().jsonPath();
+
+            //When 조회하면
+            var jsonPath = getLine(location).response().jsonPath();
+
+            //Then 수정된 결과가 반환된다.
+            assertAll(() -> {
+                assertThat(jsonPath.getString("name")).isEqualTo("다른호선");
+                assertThat(jsonPath.getString("color")).isEqualTo("red");
+            });
         }
 
     }
@@ -114,6 +143,15 @@ public class LineAcceptanceTest {
 
         assertThat(extractableResponse.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         return extractableResponse.response();
+    }
+
+    private ExtractableResponse<Response> getLine(final String location) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get(location)
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
     }
 
 }
