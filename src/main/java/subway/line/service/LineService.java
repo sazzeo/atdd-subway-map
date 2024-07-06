@@ -11,6 +11,7 @@ import subway.line.repository.LineRepository;
 import subway.line.repository.LineStationRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -37,17 +38,20 @@ public class LineService {
 
 
     public List<LineResponse> getLines() {
-        return lineRepository.findAll().stream()
-                .map(line -> this.createLineResponse(line, List.of()))
+        List<Line> lines = lineRepository.findAll();
+        Map<Long, List<LineStation>> lineMap = lineStationRepository.findByLineIdIn(lines.stream().map(Line::getId).collect(Collectors.toList()))
+                .stream()
+                .collect(Collectors.groupingBy(LineStation::getLineId));
+        return lines.stream()
+                .map(line -> this.createLineResponse(line, lineMap.get(line.getId())))
                 .collect(Collectors.toList());
     }
 
-    private LineResponse createLineResponse(final Line line, final List<LineStationResponse> stations) {
-        return new LineResponse(line.getId(), line.getName(), line.getColor(), stations);
-    }
-
-    private LineStationResponse createLineStationResponse(LineStation lineStation) {
-        return new LineStationResponse(lineStation.getId(), "지하철역");
+    private LineResponse createLineResponse(final Line line, final List<LineStation> stations) {
+        return new LineResponse(line.getId(), line.getName(), line.getColor(),
+                stations.stream()
+                        .map(station -> new LineStationResponse(station.getId(), "지하철역"))
+                        .collect(Collectors.toList()));
     }
 
     private void saveLineStation(final CreateLineRequest request, final Long lindId) {
@@ -56,10 +60,8 @@ public class LineService {
         lineStationRepository.saveAll(List.of(upStation, downStation));
     }
 
-    private List<LineStationResponse> getLineStationsByLineId(final Long lineId) {
-        return lineStationRepository.findByLineId(lineId).stream().map(
-                this::createLineStationResponse
-        ).collect(Collectors.toList());
+    private List<LineStation> getLineStationsByLineId(final Long lineId) {
+        return lineStationRepository.findByLineId(lineId);
     }
 
 }
