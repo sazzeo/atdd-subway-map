@@ -1,19 +1,14 @@
 package subway.line;
 
-import io.restassured.RestAssured;
-import io.restassured.response.ExtractableResponse;
-import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
-import subway.line.payload.CreateLineRequest;
-import subway.line.payload.UpdateLineRequest;
+import subway.station.StationApiRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -33,15 +28,19 @@ public class LineApiRequestTest {
         @Test
         void createLine() {
             // Given 노선을 생성하면
+            var upStationId = StationApiRequest.create("강남역").jsonPath().getLong("id");
+            var downStationId = StationApiRequest.create("선릉역").jsonPath().getLong("id");
+
             // Then 신규 노선이 생성된다.
-            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", upStationId, downStationId, 10L);
 
             //Then 생성된 노선을 응답받는다.
             assertAll(() -> {
                 var jsonPath = response.jsonPath();
+                assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
                 assertThat(jsonPath.getString("name")).isEqualTo("2호선");
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-green-600");
-                assertThat(jsonPath.getList("stations.id", Long.TYPE)).containsAnyOf(1L, 2L);
+                assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역", "선릉역");
             });
 
         }
