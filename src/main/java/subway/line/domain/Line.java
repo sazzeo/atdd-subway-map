@@ -1,35 +1,34 @@
 package subway.line.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import subway.station.Station;
+
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class Line {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "line_id")
     private Long id;
 
     private String name;
 
     private String color;
 
-    private Long upStationId;
-
-    private Long downStationId;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "line_id")
+    private List<Station> stations = new ArrayList<>();
 
     private Long distance;
 
     public Line() {
     }
 
-    public Line(final String name, final String color, final Long upStationId, final Long downStationId, final Long distance) {
+    public Line(final String name, final String color, final Long distance) {
         this.name = name;
         this.color = color;
-        this.upStationId = upStationId;
-        this.downStationId = downStationId;
         this.distance = distance;
     }
 
@@ -45,14 +44,6 @@ public class Line {
         return color;
     }
 
-    public Long getUpStationId() {
-        return upStationId;
-    }
-
-    public Long getDownStationId() {
-        return downStationId;
-    }
-
     public Long getDistance() {
         return distance;
     }
@@ -60,5 +51,9 @@ public class Line {
     public void update(final String name, final String color) {
         this.name = name;
         this.color = color;
+    }
+
+    public void addStations(final List<Station> stations) {
+        this.stations.addAll(stations);
     }
 }
