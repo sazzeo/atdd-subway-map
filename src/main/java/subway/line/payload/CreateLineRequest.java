@@ -11,7 +11,7 @@ public class CreateLineRequest {
     private Long distance;
 
     public Line toEntity() {
-        return new Line(this.name, this.color, this.upStationId, this.downStationId, this.distance);
+        return new Line(this.name, this.color, this.distance);
     }
 
     public CreateLineRequest() {

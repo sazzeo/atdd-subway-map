@@ -1,5 +1,7 @@
 package subway.line.payload;
 
+import subway.station.StationResponse;
+
 import java.util.List;
 
 public class LineResponse {
@@ -7,12 +9,12 @@ public class LineResponse {
     private Long id;
     private String name;
     private String color;
-    private List<LineStationResponse> stations;
+    private List<StationResponse> stations;
 
     public LineResponse() {
     }
 
-    public LineResponse(final Long id, final String name, final String color, final List<LineStationResponse> stations) {
+    public LineResponse(final Long id, final String name, final String color, final List<StationResponse> stations) {
         this.id = id;
         this.name = name;
         this.color = color;
@@ -31,8 +33,7 @@ public class LineResponse {
         return color;
     }
 
-    public List<LineStationResponse> getStations() {
+    public List<StationResponse> getStations() {
         return stations;
     }
-
 }

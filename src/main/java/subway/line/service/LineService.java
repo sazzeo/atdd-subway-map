@@ -6,10 +6,11 @@ import subway.line.domain.Line;
 import subway.line.domain.LineStation;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
-import subway.line.payload.LineStationResponse;
 import subway.line.payload.UpdateLineRequest;
 import subway.line.repository.LineRepository;
 import subway.line.repository.LineStationRepository;
+import subway.station.StationRepository;
+import subway.station.StationResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -22,19 +23,26 @@ public class LineService {
 
     private final LineRepository lineRepository;
     private final LineStationRepository lineStationRepository;
+    private final StationRepository stationRepository;
 
-    public LineService(final LineRepository lineRepository, final LineStationRepository lineStationRepository) {
+    public LineService(final LineRepository lineRepository, final LineStationRepository lineStationRepository, final StationRepository stationRepository) {
         this.lineRepository = lineRepository;
         this.lineStationRepository = lineStationRepository;
+        this.stationRepository = stationRepository;
     }
 
     @Transactional
     public LineResponse saveLine(CreateLineRequest request) {
-        Line line = lineRepository.save(request.toEntity());
-        this.saveLineStation(request, line.getId());
-        var lineStations = getLineStationsByLineId(line.getId());
+        var line = lineRepository.save(request.toEntity());
+        var stations = stationRepository.findByIdIn(List.of(request.getUpStationId(), request.getDownStationId()));
+        line.addStations(stations);
+        //        this.saveLineStation(request, line.getId());
+//        var lineStations = getLineStationsByLineId(line.getId());
+//        return this.createLineResponse(line, lineStations);
 
-        return this.createLineResponse(line, lineStations);
+
+        return new LineResponse(line.getId(), line.getName(), line.getColor(), stations.stream().map(e -> new StationResponse(e.getId(), e.getName()))
+                .collect(Collectors.toList()));
     }
 
 
@@ -74,10 +82,16 @@ public class LineService {
     }
 
     private LineResponse createLineResponse(final Line line, final List<LineStation> stations) {
+
         return new LineResponse(line.getId(), line.getName(), line.getColor(),
                 stations.stream()
-                        .map(station -> new LineStationResponse(station.getId(), "지하철역"))
+                        .map(station ->
+                                new StationResponse())
                         .collect(Collectors.toList()));
+//        return new LineResponse(line.getId(), line.getName(), line.getColor(),
+//                stations.stream()
+//                        .map(station -> new LineStationResponse(station.getId(), "지하철역"))
+//                        .collect(Collectors.toList()));
     }
 
     private void saveLineStation(final CreateLineRequest request, final Long lindId) {
