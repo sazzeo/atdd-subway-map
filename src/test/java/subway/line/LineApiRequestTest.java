@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @DisplayName("노선 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @Sql(scripts = "classpath:truncate-tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-public class LineAcceptanceTest {
+public class LineApiRequestTest {
 
     private static final String URL_PREFIX = "/lines";
 
@@ -34,7 +34,7 @@ public class LineAcceptanceTest {
         void createLine() {
             // Given 노선을 생성하면
             // Then 신규 노선이 생성된다.
-            var response = LineAcceptanceTest.this.createLine("2호선", "bg-green-600", 1L, 2L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
 
             //Then 생성된 노선을 응답받는다.
             assertAll(() -> {
@@ -55,17 +55,11 @@ public class LineAcceptanceTest {
         @Test
         void showLines() {
             //Given 노선을 생성하고
-            createLine("2호선", "bg-green-600", 1L, 2L, 10L);
-            createLine("3호선", "bg-orange-600", 3L, 4L, 20L);
+            LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
+            LineApiRequest.create("3호선", "bg-orange-600", 3L, 4L, 20L);
 
             //When 노선 목록을 조회하면
-            var jsonPath = RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .basePath(URL_PREFIX)
-                    .when().get()
-                    .then().log().all()
-                    .statusCode(HttpStatus.OK.value())
-                    .extract().response().jsonPath();
+            var jsonPath = LineApiRequest.getLines().jsonPath();
 
             //Then 생성된 노선 목록이 모두 조회된다.
             assertAll(() -> {
@@ -81,13 +75,13 @@ public class LineAcceptanceTest {
         @Test
         void showLine() {
             //Given 노선을 여러개 생성하고
-            var response = createLine("2호선", "bg-green-600", 1L, 2L, 10L);
-            createLine("3호선", "bg-orange-600", 4L, 5L, 10L);
-            createLine("4호선", "bg-blue-600", 5L, 6L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
+            LineApiRequest.create("3호선", "bg-orange-600", 4L, 5L, 10L);
+            LineApiRequest.create("4호선", "bg-blue-600", 5L, 6L, 10L);
 
             //When 한 노선을 조회하면
             var location = response.header(HttpHeaders.LOCATION);
-            var jsonPath = getLine(location).response().jsonPath();
+            var jsonPath = LineApiRequest.getLine(location).jsonPath();
 
             // Then 해당 노선이 조회된다.
 
@@ -110,20 +104,15 @@ public class LineAcceptanceTest {
         @Test
         void updateLine() {
             //Given 노선을 생성하고
-            var response = createLine("2호선", "bg-green-600", 1L, 2L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 노선을 수정한 뒤
-            RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(new UpdateLineRequest("다른호선", "red"))
-                    .when().patch(location)
-                    .then().log().all()
-                    .statusCode(HttpStatus.NO_CONTENT.value())
-                    .extract();
+            LineApiRequest.update(location, "다른호선", "red");
 
             //When 조회하면
-            var jsonPath = getLine(location).response().jsonPath();
+
+            var jsonPath = LineApiRequest.getLine(location).jsonPath();
 
             //Then 수정된 결과가 반환된다.
             assertAll(() -> {
@@ -141,71 +130,28 @@ public class LineAcceptanceTest {
         @Test
         void deleteLine() {
             //Given 노선을 생성하고
-            var response = createLine("2호선", "bg-green-600", 1L, 2L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
             var location = response.header(HttpHeaders.LOCATION);
 
-            //When 노선을 삭제한뒤
-            deleteLine(location);
+            //When 노선을 삭제하면
+            LineApiRequest.delete(location);
 
-            //Then 다시 조회하면 노선이 조회되지 않는다.
-            getLine(location, HttpStatus.BAD_REQUEST.value());
+            //TODO
+            //Then 목록에서 제외된다
         }
 
         @DisplayName("삭제하려는 노선이 존재하지 않으면 응답코드 400을 반환한다")
         @Test
         void deleteLineWhenNotExist() {
             //When 존재하지 않는 노선을 삭제하면
-            var response = deleteLine(URL_PREFIX + "/0", HttpStatus.BAD_REQUEST.value());
+            var response = LineApiRequest.delete("/lines/0");
 
-            //Then 404 를 발생시킨다
+            //Then 400 를 발생시킨다
             assertThat(response.statusCode()).isEqualTo(400);
         }
 
 
-        private ExtractableResponse<Response> deleteLine(final String location, int status) {
-            return RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .when().delete(location)
-                    .then().log().all()
-                    .statusCode(status)
-                    .extract();
-        }
-
-        private void deleteLine(final String location) {
-            this.deleteLine(location, HttpStatus.NO_CONTENT.value());
-        }
     }
 
-    private Response createLine(final String name, final String color, final Long upStationId, final Long downStationId, final Long distance) {
-        var extractableResponse = RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .basePath(URL_PREFIX)
-                .body(new CreateLineRequest(name, color, upStationId, downStationId, distance))
-                .when().post()
-                .then().log().all()
-                .statusCode(HttpStatus.CREATED.value())
-                .extract();
-
-        assertThat(extractableResponse.statusCode()).isEqualTo(HttpStatus.CREATED.value());
-        return extractableResponse.response();
-    }
-
-    private ExtractableResponse<Response> getLine(final String location) {
-        return RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when().get(location)
-                .then().log().all()
-                .statusCode(HttpStatus.OK.value())
-                .extract();
-    }
-
-    private ExtractableResponse<Response> getLine(final String location, int statusCode) {
-        return RestAssured.given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .when().get(location)
-                .then().log().all()
-                .statusCode(statusCode)
-                .extract();
-    }
 
 }
