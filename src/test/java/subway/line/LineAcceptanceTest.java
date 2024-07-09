@@ -100,7 +100,6 @@ public class LineAcceptanceTest {
 
         }
 
-
     }
 
 
@@ -111,20 +110,20 @@ public class LineAcceptanceTest {
         @Test
         void updateLine() {
             //Given 노선을 생성하고
-            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 노선을 수정한 뒤
-            LineApiRequest.update(location, "다른호선", "red");
+            LineApiRequest.update(location, "3호선", "bg-orange-500");
 
             //When 조회하면
-
             var jsonPath = LineApiRequest.getLine(location).jsonPath();
 
             //Then 수정된 결과가 반환된다.
             assertAll(() -> {
-                assertThat(jsonPath.getString("name")).isEqualTo("다른호선");
-                assertThat(jsonPath.getString("color")).isEqualTo("red");
+                assertThat(jsonPath.getString("name")).isEqualTo("3호선");
+                assertThat(jsonPath.getString("color")).isEqualTo("bg-orange-500");
+                assertThat(jsonPath.getList("stations.name" , String.class)).containsAnyOf("강남역", "선릉역");
             });
         }
 

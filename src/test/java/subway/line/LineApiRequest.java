@@ -43,7 +43,7 @@ public class LineApiRequest {
     public static Response update(final String url, final String name, final String color) {
         return RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(new UpdateLineRequest("다른호선", "red"))
+                .body(new UpdateLineRequest(name, color))
                 .when().patch(url)
                 .then().log().all()
                 .statusCode(HttpStatus.NO_CONTENT.value())
