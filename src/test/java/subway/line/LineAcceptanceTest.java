@@ -88,11 +88,13 @@ public class LineAcceptanceTest {
 
             //When 한 노선을 조회하면
             var location = response.header(HttpHeaders.LOCATION);
-            var jsonPath = LineApiRequest.getLine(location).jsonPath();
+            var lineResponse = LineApiRequest.getLine(location);
 
             // Then 해당 노선이 조회된다.
 
             assertAll(() -> {
+                assertThat(lineResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+                var jsonPath = lineResponse.jsonPath();
                 assertThat(jsonPath.getString("name")).isEqualTo("2호선");
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-green-600");
                 assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역", "선릉역");
@@ -102,8 +104,9 @@ public class LineAcceptanceTest {
         @DisplayName("조회하려는 노선이 존재하지 않으면 400 상태코드를 반환한다.")
         @Test
         void showLineWhenNotExist() {
+            // When 조회하려는 노선이 존재하지 않으면
             var response = LineApiRequest.getLine("/lines/0");
-
+            // Then 400 상태코드를 반환한다.
             assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
 
@@ -121,13 +124,14 @@ public class LineAcceptanceTest {
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 노선을 수정한 뒤
-            LineApiRequest.update(location, "3호선", "bg-orange-500");
+            var updateResponse =LineApiRequest.update(location, "3호선", "bg-orange-500");
 
             //When 조회하면
             var jsonPath = LineApiRequest.getLine(location).jsonPath();
 
             //Then 수정된 결과가 반환된다.
             assertAll(() -> {
+                assertThat(updateResponse.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
                 assertThat(jsonPath.getString("name")).isEqualTo("3호선");
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-orange-500");
                 assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역", "선릉역");
@@ -137,7 +141,10 @@ public class LineAcceptanceTest {
         @DisplayName("존재하지 않는 노선을 수정하면 400 상태코드르 반환한다.")
         @Test
         void updateLineWhenNotExist() {
+            //when 존재하지 않는 노선을 수정하면
             var response = LineApiRequest.update("/lines/0", "3호선", "bg-orange-500");
+
+            //then 400 상태코드르 반환한다.
             assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
 
@@ -155,12 +162,13 @@ public class LineAcceptanceTest {
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 그 중 한 노선을 삭제하면
-            LineApiRequest.delete(location);
+            var deleteResponse =LineApiRequest.delete(location);
 
             //Then 삭제한 노선은 목록에서 제외된다
             var jsonPath = LineApiRequest.getLines().jsonPath();
 
             assertAll(() -> {
+                assertThat(deleteResponse.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
                 assertThat(jsonPath.getList("name", String.class)).containsOnly("3호선");
                 assertThat(jsonPath.getList("color", String.class)).containsOnly("bg-orange-500");
             });
