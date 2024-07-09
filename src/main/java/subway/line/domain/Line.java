@@ -9,26 +9,32 @@ import java.util.List;
 @Entity
 public class Line {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "line_id")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
 
     private String color;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "line_id")
-    private List<Station> stations = new ArrayList<>();
+    @ManyToOne
+    @JoinColumn(name = "up_station_id")
+    private Station upStation;
+
+    @ManyToOne
+    @JoinColumn(name = "down_station_id")
+    private Station downStation;
 
     private Long distance;
 
     public Line() {
     }
 
-    public Line(final String name, final String color, final Long distance) {
+    public Line(final String name, final String color, final Station upStation, final Station downStation, final Long distance) {
         this.name = name;
         this.color = color;
+        this.upStation = upStation;
+        this.downStation = downStation;
         this.distance = distance;
     }
 
@@ -44,6 +50,14 @@ public class Line {
         return color;
     }
 
+    public Station getUpStation() {
+        return upStation;
+    }
+
+    public Station getDownStation() {
+        return downStation;
+    }
+
     public Long getDistance() {
         return distance;
     }
@@ -53,7 +67,4 @@ public class Line {
         this.color = color;
     }
 
-    public void addStations(final List<Station> stations) {
-        this.stations.addAll(stations);
-    }
 }

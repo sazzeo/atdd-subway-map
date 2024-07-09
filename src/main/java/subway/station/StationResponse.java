@@ -4,12 +4,19 @@ public class StationResponse {
     private Long id;
     private String name;
 
-    public StationResponse() {
+    private StationResponse() {
     }
 
-    public StationResponse(Long id, String name) {
+    private StationResponse(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public static StationResponse from(final Station line) {
+        return new StationResponse(
+                line.getId(),
+                line.getName()
+        );
     }
 
     public Long getId() {

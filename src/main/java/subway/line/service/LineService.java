@@ -9,6 +9,7 @@ import subway.line.payload.LineResponse;
 import subway.line.payload.UpdateLineRequest;
 import subway.line.repository.LineRepository;
 import subway.line.repository.LineStationRepository;
+import subway.station.Station;
 import subway.station.StationRepository;
 import subway.station.StationResponse;
 
@@ -31,20 +32,26 @@ public class LineService {
         this.stationRepository = stationRepository;
     }
 
+
     @Transactional
-    public LineResponse saveLine(CreateLineRequest request) {
-        var line = lineRepository.save(request.toEntity());
-        var stations = stationRepository.findByIdIn(List.of(request.getUpStationId(), request.getDownStationId()));
-        line.addStations(stations);
-        //        this.saveLineStation(request, line.getId());
-//        var lineStations = getLineStationsByLineId(line.getId());
-//        return this.createLineResponse(line, lineStations);
+    public LineResponse saveLine(final CreateLineRequest request) {
 
+        var upStation = this.getStationById(request.getUpStationId());
+        var downStation = this.getStationById(request.getDownStationId());
 
-        return new LineResponse(line.getId(), line.getName(), line.getColor(), stations.stream().map(e -> new StationResponse(e.getId(), e.getName()))
-                .collect(Collectors.toList()));
+        Line line = lineRepository.save(
+                new Line(request.getName(),
+                        request.getColor(),
+                        upStation,
+                        downStation,
+                        request.getDistance()));
+
+        return new LineResponse(
+                line.getId(),
+                line.getName(),
+                line.getColor(),
+                List.of(StationResponse.from(line.getDownStation()), StationResponse.from(line.getDownStation())));
     }
-
 
     public List<LineResponse> getLines() {
         List<Line> lines = lineRepository.findAll();
@@ -76,18 +83,23 @@ public class LineService {
         lineRepository.delete(line);
     }
 
+    private Station getStationById(final Long id) {
+        return stationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역입니다."));
+    }
+
     private Line getLineById(final Long id) {
         return lineRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
     }
 
     private LineResponse createLineResponse(final Line line, final List<LineStation> stations) {
-
-        return new LineResponse(line.getId(), line.getName(), line.getColor(),
-                stations.stream()
-                        .map(station ->
-                                new StationResponse())
-                        .collect(Collectors.toList()));
+        return null;
+//        return new LineResponse(line.getId(), line.getName(), line.getColor(),
+//                stations.stream()
+//                        .map(station ->
+//                                new StationResponse())
+//                        .collect(Collectors.toList()));
 //        return new LineResponse(line.getId(), line.getName(), line.getColor(),
 //                stations.stream()
 //                        .map(station -> new LineStationResponse(station.getId(), "지하철역"))
