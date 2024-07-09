@@ -134,6 +134,13 @@ public class LineAcceptanceTest {
             });
         }
 
+        @DisplayName("존재하지 않는 노선을 수정하면 400 상태코드르 반환한다.")
+        @Test
+        void updateLineWhenNotExist() {
+            var response = LineApiRequest.update("/lines/0", "3호선", "bg-orange-500");
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        }
+
     }
 
     @Nested

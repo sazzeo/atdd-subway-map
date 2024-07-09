@@ -45,7 +45,6 @@ public class LineApiRequest {
                 .body(new UpdateLineRequest(name, color))
                 .when().patch(url)
                 .then().log().all()
-                .statusCode(HttpStatus.NO_CONTENT.value())
                 .extract().response();
     }
 
