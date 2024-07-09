@@ -72,8 +72,8 @@ public class LineAcceptanceTest {
             assertAll(() -> {
                 assertThat(jsonPath.getList("name")).containsAnyOf("2호선", "3호선");
                 assertThat(jsonPath.getList("color")).containsAnyOf("bg-green-600", "bg-orange-600");
-                assertThat(jsonPath.getList("stations[0].name", String.class)).containsAnyOf("강남역" , "선릉역");
-                assertThat(jsonPath.getList("stations[1].name", String.class)).containsAnyOf("선릉역" , "삼성역");
+                assertThat(jsonPath.getList("stations[0].name", String.class)).containsAnyOf("강남역", "선릉역");
+                assertThat(jsonPath.getList("stations[1].name", String.class)).containsAnyOf("선릉역", "삼성역");
             });
 
         }
@@ -95,7 +95,7 @@ public class LineAcceptanceTest {
             assertAll(() -> {
                 assertThat(jsonPath.getString("name")).isEqualTo("2호선");
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-green-600");
-                assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역" , "선릉역");
+                assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역", "선릉역");
             });
 
         }
@@ -123,7 +123,7 @@ public class LineAcceptanceTest {
             assertAll(() -> {
                 assertThat(jsonPath.getString("name")).isEqualTo("3호선");
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-orange-500");
-                assertThat(jsonPath.getList("stations.name" , String.class)).containsAnyOf("강남역", "선릉역");
+                assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역", "선릉역");
             });
         }
 
@@ -132,31 +132,35 @@ public class LineAcceptanceTest {
     @Nested
     class WhenDelete {
 
-        @DisplayName("삭제하려는 노선이 존재하면 삭제된 뒤 조회되지 않는다.")
+        @DisplayName("삭제하려는 노선이 존재하면 삭제된 뒤 목록에서 제외된다")
         @Test
         void deleteLine() {
-            //Given 노선을 생성하고
-            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
+            //Given 여러 노선을 생성하고
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 삼성역Id, 10L);
+            LineApiRequest.create("3호선", "bg-orange-500", 삼성역Id, 선릉역Id, 10L);
             var location = response.header(HttpHeaders.LOCATION);
 
-            //When 노선을 삭제하면
+            //When 그 중 한 노선을 삭제하면
             LineApiRequest.delete(location);
 
-            //TODO
-            //Then 목록에서 제외된다
+            //Then 삭제한 노선은 목록에서 제외된다
+            var jsonPath = LineApiRequest.getLines().jsonPath();
+
+            assertAll(() -> {
+                assertThat(jsonPath.getList("name", String.class)).containsOnly("3호선");
+                assertThat(jsonPath.getList("color", String.class)).containsOnly("bg-orange-500");
+            });
         }
+    }
 
-        @DisplayName("삭제하려는 노선이 존재하지 않으면 응답코드 400을 반환한다")
-        @Test
-        void deleteLineWhenNotExist() {
-            //When 존재하지 않는 노선을 삭제하면
-            var response = LineApiRequest.delete("/lines/0");
+    @DisplayName("삭제하려는 노선이 존재하지 않으면 응답코드 400을 반환한다")
+    @Test
+    void deleteLineWhenNotExist() {
+        //When 존재하지 않는 노선을 삭제하면
+        var response = LineApiRequest.delete("/lines/0");
 
-            //Then 400 를 발생시킨다
-            assertThat(response.statusCode()).isEqualTo(400);
-        }
-
-
+        //Then 400 를 발생시킨다
+        assertThat(response.statusCode()).isEqualTo(400);
     }
 
 
