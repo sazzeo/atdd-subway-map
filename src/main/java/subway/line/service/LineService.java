@@ -57,8 +57,7 @@ public class LineService {
 
     public LineResponse getById(final Long id) {
         var line = getLineById(id);
-        var stations = lineStationRepository.findByLineId(line.getId());
-        return this.createLineResponse(line, stations);
+        return LineResponse.from(line);
     }
 
 
