@@ -82,9 +82,9 @@ public class LineAcceptanceTest {
         @Test
         void showLine() {
             //Given 노선을 여러개 생성하고
-            var response = LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
-            LineApiRequest.create("3호선", "bg-orange-600", 4L, 5L, 10L);
-            LineApiRequest.create("4호선", "bg-blue-600", 5L, 6L, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
+            LineApiRequest.create("3호선", "bg-orange-600", 선릉역Id, 삼성역Id, 10L);
+            LineApiRequest.create("4호선", "bg-blue-600", 삼성역Id, 강남역Id, 10L);
 
             //When 한 노선을 조회하면
             var location = response.header(HttpHeaders.LOCATION);
@@ -95,7 +95,7 @@ public class LineAcceptanceTest {
             assertAll(() -> {
                 assertThat(jsonPath.getString("name")).isEqualTo("2호선");
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-green-600");
-                assertThat(jsonPath.getList("stations.id", Long.TYPE)).containsAnyOf(1L, 2L);
+                assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역" , "선릉역");
             });
 
         }
