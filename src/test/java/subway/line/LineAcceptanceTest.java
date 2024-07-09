@@ -97,7 +97,14 @@ public class LineAcceptanceTest {
                 assertThat(jsonPath.getString("color")).isEqualTo("bg-green-600");
                 assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("강남역", "선릉역");
             });
+        }
 
+        @DisplayName("조회하려는 노선이 존재하지 않으면 400 상태코드를 반환한다.")
+        @Test
+        void showLineWhenNotExist() {
+            var response = LineApiRequest.getLine("/lines/0");
+
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
 
     }

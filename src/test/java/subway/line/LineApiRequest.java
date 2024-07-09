@@ -36,7 +36,6 @@ public class LineApiRequest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().get(url)
                 .then().log().all()
-                .statusCode(HttpStatus.OK.value())
                 .extract().response();
     }
 
