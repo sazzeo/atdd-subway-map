@@ -1,7 +1,5 @@
 package subway.line.payload;
 
-import subway.line.domain.Line;
-
 public class CreateLineRequest {
 
     private String name;
@@ -9,10 +7,6 @@ public class CreateLineRequest {
     private Long upStationId;
     private Long downStationId;
     private Long distance;
-
-    public Line toEntity() {
-        return new Line(this.name, this.color, this.distance);
-    }
 
     public CreateLineRequest() {
     }
