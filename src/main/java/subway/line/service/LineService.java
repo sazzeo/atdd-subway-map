@@ -46,23 +46,14 @@ public class LineService {
                         downStation,
                         request.getDistance()));
 
-        return new LineResponse(
-                line.getId(),
-                line.getName(),
-                line.getColor(),
-                List.of(StationResponse.from(line.getDownStation()), StationResponse.from(line.getDownStation())));
+        return LineResponse.from(line);
     }
 
     public List<LineResponse> getLines() {
-        List<Line> lines = lineRepository.findAll();
-        Map<Long, List<LineStation>> lineMap = lineStationRepository.findByLineIdIn(lines.stream().map(Line::getId).collect(Collectors.toList()))
-                .stream()
-                .collect(Collectors.groupingBy(LineStation::getLineId));
-        return lines.stream()
-                .map(line -> this.createLineResponse(line, lineMap.get(line.getId())))
+        return lineRepository.findAllJoinLine().stream()
+                .map(LineResponse::from)
                 .collect(Collectors.toList());
     }
-
 
     public LineResponse getById(final Long id) {
         var line = getLineById(id);
