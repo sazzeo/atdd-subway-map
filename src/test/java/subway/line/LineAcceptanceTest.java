@@ -1,5 +1,6 @@
 package subway.line;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,17 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 //@Sql(scripts = "classpath:truncate-tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class LineAcceptanceTest {
 
+    private Long 강남역Id;
+    private Long 선릉역Id;
+    private Long 삼성역Id;
+
+    @BeforeEach
+    void setUp() {
+        강남역Id = StationApiRequest.create("강남역").jsonPath().getLong("id");
+        선릉역Id = StationApiRequest.create("선릉역").jsonPath().getLong("id");
+        삼성역Id = StationApiRequest.create("삼성역").jsonPath().getLong("id");
+    }
+
     @Nested
     class WhenNew {
 
@@ -25,11 +37,9 @@ public class LineAcceptanceTest {
         @Test
         void createLine() {
             // Given 노선을 생성하면
-            var upStationId = StationApiRequest.create("강남역").jsonPath().getLong("id");
-            var downStationId = StationApiRequest.create("선릉역").jsonPath().getLong("id");
 
             // Then 신규 노선이 생성된다.
-            var response = LineApiRequest.create("2호선", "bg-green-600", upStationId, downStationId, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
 
             //Then 생성된 노선을 응답받는다.
             assertAll(() -> {
@@ -50,9 +60,10 @@ public class LineAcceptanceTest {
         @DisplayName("모든 노선과 해당하는 지하철역을 모두 반환한다.")
         @Test
         void showLines() {
+
             //Given 노선을 생성하고
-            LineApiRequest.create("2호선", "bg-green-600", 1L, 2L, 10L);
-            LineApiRequest.create("3호선", "bg-orange-600", 3L, 4L, 20L);
+            LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
+            LineApiRequest.create("3호선", "bg-orange-600", 선릉역Id, 삼성역Id, 20L);
 
             //When 노선 목록을 조회하면
             var jsonPath = LineApiRequest.getLines().jsonPath();
@@ -61,8 +72,8 @@ public class LineAcceptanceTest {
             assertAll(() -> {
                 assertThat(jsonPath.getList("name")).containsAnyOf("2호선", "3호선");
                 assertThat(jsonPath.getList("color")).containsAnyOf("bg-green-600", "bg-orange-600");
-                assertThat(jsonPath.getList("stations[0].id", Long.TYPE)).containsAnyOf(1L, 2L);
-                assertThat(jsonPath.getList("stations[1].id", Long.TYPE)).containsAnyOf(3L, 4L);
+                assertThat(jsonPath.getList("stations[0].name", String.class)).containsAnyOf("강남역" , "선릉역");
+                assertThat(jsonPath.getList("stations[1].name", String.class)).containsAnyOf("선릉역" , "삼성역");
             });
 
         }
