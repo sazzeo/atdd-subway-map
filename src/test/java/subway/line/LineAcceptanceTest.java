@@ -20,15 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 @Sql(scripts = "classpath:truncate-tables.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 public class LineAcceptanceTest {
 
-    private Long 강남역Id;
-    private Long 선릉역Id;
-    private Long 삼성역Id;
+    private Long 강남역;
+    private Long 선릉역;
+    private Long 삼성역;
 
     @BeforeEach
     void setUp() {
-        강남역Id = StationApiRequest.create("강남역").jsonPath().getLong("id");
-        선릉역Id = StationApiRequest.create("선릉역").jsonPath().getLong("id");
-        삼성역Id = StationApiRequest.create("삼성역").jsonPath().getLong("id");
+        강남역 = StationApiRequest.create("강남역").jsonPath().getLong("id");
+        선릉역 = StationApiRequest.create("선릉역").jsonPath().getLong("id");
+        삼성역 = StationApiRequest.create("삼성역").jsonPath().getLong("id");
     }
 
     @Nested
@@ -40,7 +40,7 @@ public class LineAcceptanceTest {
             // Given 노선을 생성하면
 
             // Then 신규 노선이 생성된다.
-            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역, 선릉역, 10L);
 
             //Then 생성된 노선을 응답받는다.
             assertAll(() -> {
@@ -63,8 +63,8 @@ public class LineAcceptanceTest {
         void showLines() {
 
             //Given 노선을 생성하고
-            LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
-            LineApiRequest.create("3호선", "bg-orange-600", 선릉역Id, 삼성역Id, 20L);
+            LineApiRequest.create("2호선", "bg-green-600", 강남역, 선릉역, 10L);
+            LineApiRequest.create("3호선", "bg-orange-600", 선릉역, 삼성역, 20L);
 
             //When 노선 목록을 조회하면
             var jsonPath = LineApiRequest.getLines().jsonPath();
@@ -83,9 +83,9 @@ public class LineAcceptanceTest {
         @Test
         void showLine() {
             //Given 노선을 여러개 생성하고
-            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
-            LineApiRequest.create("3호선", "bg-orange-600", 선릉역Id, 삼성역Id, 10L);
-            LineApiRequest.create("4호선", "bg-blue-600", 삼성역Id, 강남역Id, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역, 선릉역, 10L);
+            LineApiRequest.create("3호선", "bg-orange-600", 선릉역, 삼성역, 10L);
+            LineApiRequest.create("4호선", "bg-blue-600", 삼성역, 강남역, 10L);
 
             //When 한 노선을 조회하면
             var location = response.header(HttpHeaders.LOCATION);
@@ -121,7 +121,7 @@ public class LineAcceptanceTest {
         @Test
         void updateLine() {
             //Given 노선을 생성하고
-            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 선릉역Id, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역, 선릉역, 10L);
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 노선을 수정한 뒤
@@ -158,8 +158,8 @@ public class LineAcceptanceTest {
         @Test
         void deleteLine() {
             //Given 여러 노선을 생성하고
-            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역Id, 삼성역Id, 10L);
-            LineApiRequest.create("3호선", "bg-orange-500", 삼성역Id, 선릉역Id, 10L);
+            var response = LineApiRequest.create("2호선", "bg-green-600", 강남역, 삼성역, 10L);
+            LineApiRequest.create("3호선", "bg-orange-500", 삼성역, 선릉역, 10L);
             var location = response.header(HttpHeaders.LOCATION);
 
             //When 그 중 한 노선을 삭제하면
