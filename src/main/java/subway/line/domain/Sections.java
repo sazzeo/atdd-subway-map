@@ -3,7 +3,6 @@ package subway.line.domain;
 import subway.station.Station;
 
 import javax.persistence.*;
-import javax.security.sasl.SaslClient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +18,12 @@ public class Sections {
 
     public Station getLastDownStation() {
         return sections.get(sections.size() - 1).getDownStation();
+    }
+
+    public boolean isUpStationAlreadyExists(Long stationId) {
+        return sections.stream()
+                .map(Section::getId)
+                .anyMatch(id -> id.equals(stationId));
     }
 
 }
