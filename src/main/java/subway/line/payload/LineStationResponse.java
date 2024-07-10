@@ -1,10 +1,13 @@
-package subway;
+package subway.line.payload;
 
-public class StationResponse {
+public class LineStationResponse {
     private Long id;
     private String name;
 
-    public StationResponse(Long id, String name) {
+    public LineStationResponse() {
+    }
+
+    public LineStationResponse(final Long id, final String name) {
         this.id = id;
         this.name = name;
     }
