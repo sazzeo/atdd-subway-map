@@ -13,6 +13,8 @@ import subway.station.StationApiRequest;
 
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.*;
+
 @DisplayName("지하철 구간 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class SectionAcceptanceTest {
@@ -53,14 +55,27 @@ public class SectionAcceptanceTest {
                     .extract().response();
 
             //then 400 상태코드를 반환한다
-            Assertions.assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 
         }
 
         @DisplayName("이미 노선에 등록되어있는 역을 하행종점역으로 등록하면 400 상태코드를 반환한다.")
         void test2() {
+            //given 이미 노선에 등록되어있는 역을 하행종점역으로 등록하면
+            var request = (Map.of("downStationId", 최초하행종점역,
+                    "upStationId", 최초상행종점역,
+                    "distance", 10));
 
+            //when 새 구간 등록시
+            var response = RestAssured.given().log().all()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(request)
+                    .when().post(String.format("/lines/%d/sections", 수인분당선))
+                    .then().log().all()
+                    .extract().response();
 
+            //then 400 상태코드를 반환한다
+            assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
 
         @DisplayName("새로운 구간 등록후 해당 노선을 조회하면 등록된 모든 노선을 확인 할 수 있다.")
