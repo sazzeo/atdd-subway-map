@@ -17,25 +17,16 @@ public class Line {
 
     private String color;
 
-    @ManyToOne
-    @JoinColumn(name = "up_station_id")
-    private Station upStation;
-
-    @ManyToOne
-    @JoinColumn(name = "down_station_id")
-    private Station downStation;
-
-    private Long distance;
+    @Embedded
+    private Sections sections = new Sections();
 
     public Line() {
     }
 
-    public Line(final String name, final String color, final Station upStation, final Station downStation, final Long distance) {
+    public Line(final String name, final String color, final Section section) {
         this.name = name;
         this.color = color;
-        this.upStation = upStation;
-        this.downStation = downStation;
-        this.distance = distance;
+        sections.add(section);
     }
 
     public Long getId() {
@@ -50,16 +41,9 @@ public class Line {
         return color;
     }
 
-    public Station getUpStation() {
-        return upStation;
-    }
 
-    public Station getDownStation() {
-        return downStation;
-    }
-
-    public Long getDistance() {
-        return distance;
+    public Station getLastDownStation() {
+        return sections.getLastDownStation();
     }
 
     public void update(final String name, final String color) {
@@ -67,4 +51,10 @@ public class Line {
         this.color = color;
     }
 
+    public void addSection(final Station upStation, final Station downStation, final Long distance) {
+        if (!getLastDownStation().getId().equals(upStation.getId())) {
+            throw new IllegalArgumentException("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
+        }
+        sections.add(new Section(upStation, downStation, distance));
+    }
 }
