@@ -14,6 +14,7 @@ import subway.station.StationApiRequest;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("지하철 구간 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
@@ -28,8 +29,8 @@ public class SectionAcceptanceTest {
 
     @BeforeEach
     void setUp() {
-        최초상행종점역 = StationApiRequest.create("강남역").jsonPath().getLong("id");
-        최초하행종점역 = StationApiRequest.create("선릉역").jsonPath().getLong("id");
+        최초상행종점역 = StationApiRequest.create("최초상행종점역").jsonPath().getLong("id");
+        최초하행종점역 = StationApiRequest.create("최초하행종점역").jsonPath().getLong("id");
         삼성역 = StationApiRequest.create("삼성역").jsonPath().getLong("id");
         잠실역 = StationApiRequest.create("잠실역").jsonPath().getLong("id");
 
@@ -78,10 +79,33 @@ public class SectionAcceptanceTest {
             assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
 
-        @DisplayName("새로운 구간 등록후 해당 노선을 조회하면 등록된 모든 노선을 확인 할 수 있다.")
+
+        @DisplayName("새로운 구간 등록후 해당 노선을 조회하면 등록된 모든 역을 확인 할 수 있다.")
         void test3() {
+            //given 새로운 구간 등록에 성공하면
+            var request = (Map.of("downStationId", 최초하행종점역,
+                    "upStationId", 삼성역,
+                    "distance", 10));
+
+            var createdResponse = RestAssured.given().log().all()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(request)
+                    .when().post(String.format("/lines/%d/sections", 수인분당선))
+                    .then().log().all()
+                    .extract().response();
+
+            //when 노선 조회시
+            var jsonPath = LineApiRequest.getLine(String.format("/lines/%d", 수인분당선)).jsonPath();
+
+            //then 등록된 모든 역을 확인할 수 있다.
+            assertAll(() -> {
+                        assertThat(createdResponse.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+                        assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("최초상행종점역", "최초하행종점역", "삼성역");
+                    }
+            );
 
         }
+
 
     }
 
