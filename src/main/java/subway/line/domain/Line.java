@@ -42,17 +42,13 @@ public class Line {
     }
 
 
-    public Station getLastDownStation() {
-        return sections.getLastDownStation();
-    }
-
     public void update(final String name, final String color) {
         this.name = name;
         this.color = color;
     }
 
     public void addSection(final Station upStation, final Station downStation, final Long distance) {
-        if (!getLastDownStation().getId().equals(upStation.getId())) {
+        if (!sections.getLastDownStationId().equals(upStation.getId())) {
             throw new IllegalArgumentException("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
         }
         if(sections.isUpStationAlreadyExists(downStation.getId())) {

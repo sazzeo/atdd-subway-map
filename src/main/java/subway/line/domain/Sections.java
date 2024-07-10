@@ -16,13 +16,13 @@ public class Sections {
         this.sections.add(section);
     }
 
-    public Station getLastDownStation() {
-        return sections.get(sections.size() - 1).getDownStation();
+    public Long getLastDownStationId() {
+        return sections.get(sections.size() - 1).getDownStationId();
     }
 
     public boolean isUpStationAlreadyExists(Long stationId) {
         return sections.stream()
-                .map(Section::getId)
+                .map(Section::getUpStationId)
                 .anyMatch(id -> id.equals(stationId));
     }
 

@@ -11,11 +11,9 @@ public class Section {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Station upStation;
+    private Long upStationId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Station downStation;
+    private Long downStationId;
 
     private Long distance;
 
@@ -24,8 +22,8 @@ public class Section {
     }
 
     public Section(final Station upStation, final Station downStation, final Long distance) {
-        this.upStation = upStation;
-        this.downStation = downStation;
+        this.upStationId = upStation.getId();
+        this.downStationId = downStation.getId();
         this.distance = distance;
     }
 
@@ -33,12 +31,12 @@ public class Section {
         return id;
     }
 
-    public Station getUpStation() {
-        return upStation;
+    public Long getUpStationId() {
+        return upStationId;
     }
 
-    public Station getDownStation() {
-        return downStation;
+    public Long getDownStationId() {
+        return downStationId;
     }
 
     public Long getDistance() {
