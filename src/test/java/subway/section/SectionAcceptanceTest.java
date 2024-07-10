@@ -1,10 +1,10 @@
 package subway.section;
 
 import io.restassured.RestAssured;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +13,7 @@ import subway.station.StationApiRequest;
 
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @DisplayName("지하철 구간 관련 기능")
@@ -41,6 +41,7 @@ public class SectionAcceptanceTest {
     class WhenAddSection {
 
         @DisplayName("기존 하행종점역이 새로운 구간의 하행종점역이 아니면 새 구간 등록시 400 상태코드를 반환한다.")
+        @Test
         void test1() {
             //given 기존 하행종점역이 새로운 구간의 상행 종점역이 아니면
             var request = (Map.of("downStationId", 삼성역,
@@ -57,10 +58,10 @@ public class SectionAcceptanceTest {
 
             //then 400 상태코드를 반환한다
             assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-
         }
 
         @DisplayName("이미 노선에 등록되어있는 역을 하행종점역으로 등록하면 400 상태코드를 반환한다.")
+        @Test
         void test2() {
             //given 이미 노선에 등록되어있는 역을 하행종점역으로 등록하면
             var request = (Map.of("downStationId", 최초하행종점역,
@@ -81,6 +82,7 @@ public class SectionAcceptanceTest {
 
 
         @DisplayName("새로운 구간 등록후 해당 노선을 조회하면 등록된 모든 역을 확인 할 수 있다.")
+        @Test
         void test3() {
             //given 새로운 구간 등록에 성공하면
             var request = (Map.of("downStationId", 최초하행종점역,
@@ -97,7 +99,7 @@ public class SectionAcceptanceTest {
             //when 노선 조회시
             var jsonPath = LineApiRequest.getLine(String.format("/lines/%d", 수인분당선)).jsonPath();
 
-            //then 등록된 모든 역을 확인할 수 있다.
+//            then 등록된 모든 역을 확인할 수 있다.
             assertAll(() -> {
                         assertThat(createdResponse.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
                         assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("최초상행종점역", "최초하행종점역", "삼성역");

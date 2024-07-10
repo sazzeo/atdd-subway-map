@@ -3,6 +3,8 @@ package subway.line.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.line.domain.Line;
+import subway.line.domain.Section;
+import subway.line.payload.AddSectionRequest;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
 import subway.line.payload.UpdateLineRequest;
@@ -26,7 +28,6 @@ public class LineService {
         this.stationRepository = stationRepository;
     }
 
-
     @Transactional
     public LineResponse saveLine(final CreateLineRequest request) {
 
@@ -36,9 +37,8 @@ public class LineService {
         Line line = lineRepository.save(
                 new Line(request.getName(),
                         request.getColor(),
-                        upStation,
-                        downStation,
-                        request.getDistance()));
+                        new Section(upStation, downStation, request.getDistance())
+                ));
 
         return LineResponse.from(line);
     }
@@ -49,7 +49,7 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
-    public LineResponse getById(final Long id) {
+    public LineResponse getLineResponse(final Long id) {
         var line = getLineById(id);
         return LineResponse.from(line);
     }
@@ -76,4 +76,11 @@ public class LineService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
     }
 
+    @Transactional
+    public void addSection(final Long id, final AddSectionRequest request) {
+        var line = getLineById(id);
+        var upStation = getStationById(request.getUpStationId());
+        var downStation = getStationById(request.getDownStationId());
+        line.addSection(upStation, downStation, request.getDistance());
+    }
 }
