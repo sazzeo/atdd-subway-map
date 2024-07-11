@@ -21,9 +21,9 @@ public class Section {
 
     }
 
-    public Section(final Station upStation, final Station downStation, final Long distance) {
-        this.upStationId = upStation.getId();
-        this.downStationId = downStation.getId();
+    public Section(final Long upStationId, final Long downStationId, final Long distance) {
+        this.upStationId = upStationId;
+        this.downStationId = downStationId;
         this.distance = distance;
     }
 

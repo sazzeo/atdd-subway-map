@@ -37,7 +37,7 @@ public class LineService {
         Line line = lineRepository.save(
                 new Line(request.getName(),
                         request.getColor(),
-                        new Section(upStation, downStation, request.getDistance())
+                        new Section(upStation.getId(), downStation.getId(), request.getDistance())
                 ));
 
         return LineResponse.from(line);
@@ -81,6 +81,6 @@ public class LineService {
         var line = getLineById(id);
         var upStation = getStationById(request.getUpStationId());
         var downStation = getStationById(request.getDownStationId());
-        line.addSection(upStation, downStation, request.getDistance());
+        line.addSection(upStation.getId(), downStation.getId(), request.getDistance());
     }
 }

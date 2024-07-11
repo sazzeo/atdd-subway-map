@@ -1,5 +1,6 @@
 package subway.line.domain;
 
+import subway.line.exception.InvalidUpStationException;
 import subway.station.Station;
 
 import javax.persistence.*;
@@ -47,13 +48,14 @@ public class Line {
         this.color = color;
     }
 
-    public void addSection(final Station upStation, final Station downStation, final Long distance) {
-        if (!sections.getLastDownStationId().equals(upStation.getId())) {
-            throw new IllegalArgumentException("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
+    public void addSection(final Long upStationId, final Long downStationId, final Long distance) {
+        if (!sections.getLastDownStationId().equals(upStationId)) {
+            throw new InvalidUpStationException("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
         }
-        if(sections.isUpStationAlreadyExists(downStation.getId())) {
+
+        if (sections.isUpStationAlreadyExists(downStationId)) {
             throw new IllegalArgumentException("하행역으로 등록하려는 역이 이미 존재합니다.");
         }
-        sections.add(new Section(upStation, downStation, distance));
+        sections.add(new Section(upStationId, downStationId, distance));
     }
 }
