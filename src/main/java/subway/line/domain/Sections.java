@@ -39,8 +39,7 @@ public class Sections {
     }
 
     public void removeLastStation() {
-
-
+        sections.remove(sections.size()-1);
     }
 
     public boolean hasOnlyOneSection() {

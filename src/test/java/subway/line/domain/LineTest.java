@@ -7,6 +7,7 @@ import subway.line.exception.InvalidDownStationException;
 import subway.line.exception.InvalidUpStationException;
 import subway.line.exception.NotTerminusStationException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class LineTest {
@@ -80,5 +81,23 @@ class LineTest {
         );
     }
 
+    @DisplayName("역이 3개 이상일때 마지막역을 삭제하면 조회되지 않는다")
+    @Test
+    void test5() {
+        //역이 3개 이상일때
+        var 역1 = 1L;
+        var 역2 = 2L;
+        var 역3 = 3L;
+
+        Line line = new Line("2호선", "green", new Section(역1, 역2, 10L));
+        line.addSection(역2, 역3, 10L);
+
+
+        //마지막역을 삭제하면
+        line.removeLastStation(역3);
+
+        //then 조회되지 않는다
+        assertThat(line.getStationIds()).containsExactly(역1, 역2);
+    }
 
 }
