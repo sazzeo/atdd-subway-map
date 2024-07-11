@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import subway.line.payload.AddSectionRequest;
 import subway.station.StationApiRequest;
 
@@ -13,9 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static subway.line.LineApiRequest.create;
 import static subway.line.LineApiRequest.노선을_조회한다;
-import static subway.section.SectionApiRequest.노선에서_역을_삭제한다;
 import static subway.section.SectionApiRequest.구간을_추가한다;
+import static subway.section.SectionApiRequest.노선에서_역을_삭제한다;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @DisplayName("지하철 구간 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class SectionAcceptanceTest {
