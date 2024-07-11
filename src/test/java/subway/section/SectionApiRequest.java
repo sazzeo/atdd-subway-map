@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import subway.line.payload.AddSectionRequest;
 
+import java.util.Map;
+
 @DisplayName("지하철 구간 관련 기능")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 public class SectionApiRequest {
@@ -16,6 +18,15 @@ public class SectionApiRequest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(request)
                 .when().post(String.format("/lines/%d/sections", 노선))
+                .then().log().all()
+                .extract().response();
+    }
+
+    public static Response 노선에서_역을_삭제한다(final Long 노선, final Long 역) {
+        return RestAssured.given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(Map.of("stationId", 역))
+                .when().delete(String.format("/lines/%d/sections", 노선))
                 .then().log().all()
                 .extract().response();
     }
