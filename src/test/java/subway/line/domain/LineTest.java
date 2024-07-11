@@ -2,6 +2,7 @@ package subway.line.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.line.exception.InsufficientStationsException;
 import subway.line.exception.InvalidDownStationException;
 import subway.line.exception.InvalidUpStationException;
 import subway.line.exception.NotTerminusStationException;
@@ -60,6 +61,21 @@ class LineTest {
         //then 에러를 발생시킨다
         assertThrows(NotTerminusStationException.class, () ->
                 //when 삭제하려는 역이 현재 종착역이 아닌 경우
+                line.removeLastStation(역2)
+        );
+    }
+
+    @DisplayName("역이 2개 이하로 존재하는 경우 하행역 삭제시 에러를 발생시킨다.")
+    @Test
+    void test4() {
+        //역이 2개 이하로 존재하는 경우
+        var 역1 = 1L;
+        var 역2 = 2L;
+        Line line = new Line("2호선", "green", new Section(역1, 역2, 10L));
+
+        //then 에러를 발생시킨다
+        assertThrows(InsufficientStationsException.class, () ->
+                //when 하행역 삭제시
                 line.removeLastStation(역2)
         );
     }

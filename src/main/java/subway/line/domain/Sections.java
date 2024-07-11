@@ -42,4 +42,8 @@ public class Sections {
 
 
     }
+
+    public boolean hasOnlyOneSection() {
+        return sections.size() == 1;
+    }
 }

@@ -1,5 +1,6 @@
 package subway.line.domain;
 
+import subway.line.exception.InsufficientStationsException;
 import subway.line.exception.InvalidDownStationException;
 import subway.line.exception.InvalidUpStationException;
 import subway.line.exception.NotTerminusStationException;
@@ -67,6 +68,10 @@ public class Line {
         if(!sections.isLastStation(stationId)) {
             throw new NotTerminusStationException("삭제하려는 역이 종착역이 아닙니다.");
         }
+        if(sections.hasOnlyOneSection()) {
+            throw new InsufficientStationsException("구간이 1개밖에 없어 역을 삭제할 수 없습니다.");
+        }
         sections.removeLastStation();
     }
+
 }
