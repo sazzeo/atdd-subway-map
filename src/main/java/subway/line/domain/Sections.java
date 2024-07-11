@@ -1,7 +1,5 @@
 package subway.line.domain;
 
-import subway.station.Station;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +15,7 @@ public class Sections {
         sections.add(section);
     }
 
-    public Long getLastDownStationId() {
+    private Long getLastDownStationId() {
         return sections.get(sections.size() - 1).getDownStationId();
     }
 
@@ -36,4 +34,12 @@ public class Sections {
         return stationIds;
     }
 
+    public boolean isLastStation(final Long stationId) {
+        return this.getLastDownStationId().equals(stationId);
+    }
+
+    public void removeLastStation() {
+
+
+    }
 }

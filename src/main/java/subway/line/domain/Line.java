@@ -2,10 +2,9 @@ package subway.line.domain;
 
 import subway.line.exception.InvalidDownStationException;
 import subway.line.exception.InvalidUpStationException;
-import subway.station.Station;
+import subway.line.exception.NotTerminusStationException;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -50,7 +49,7 @@ public class Line {
     }
 
     public void addSection(final Long upStationId, final Long downStationId, final Long distance) {
-        if (!sections.getLastDownStationId().equals(upStationId)) {
+        if (!sections.isLastStation(upStationId)) {
             throw new InvalidUpStationException("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
         }
 
@@ -64,4 +63,10 @@ public class Line {
         return sections.getStationIds();
     }
 
+    public void removeLastStation(final Long stationId) {
+        if(!sections.isLastStation(stationId)) {
+            throw new NotTerminusStationException("삭제하려는 역이 종착역이 아닙니다.");
+        }
+        sections.removeLastStation();
+    }
 }
