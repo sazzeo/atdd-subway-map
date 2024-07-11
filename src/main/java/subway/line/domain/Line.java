@@ -1,5 +1,6 @@
 package subway.line.domain;
 
+import subway.line.exception.InvalidDownStationException;
 import subway.line.exception.InvalidUpStationException;
 import subway.station.Station;
 
@@ -54,7 +55,7 @@ public class Line {
         }
 
         if (sections.isUpStationAlreadyExists(downStationId)) {
-            throw new IllegalArgumentException("하행역으로 등록하려는 역이 이미 존재합니다.");
+            throw new InvalidDownStationException("하행역으로 등록하려는 역이 이미 존재합니다.");
         }
         sections.add(new Section(upStationId, downStationId, distance));
     }

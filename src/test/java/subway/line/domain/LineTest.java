@@ -2,6 +2,7 @@ package subway.line.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import subway.line.exception.InvalidDownStationException;
 import subway.line.exception.InvalidUpStationException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,6 +22,24 @@ class LineTest {
         var 새하행역 = 4L;
         //then 에러를 발생시킨다
         assertThrows(InvalidUpStationException.class, () -> {
+            line.addSection(새상행역, 새하행역, 20L);
+        });
+
+    }
+    
+    @DisplayName("새로 등록하려는 하행역이 이미 등록된 경우 에러를 발생시킨다")
+    @Test
+    void test2() {
+        //given 기존역에
+        var 상행역 = 1L;
+        var 하행역 = 2L;
+        Line line = new Line("2호선", "green", new Section(상행역, 하행역, 10L));
+
+        //when 새로 등록하려는 하행역이 이미 등록된 경우
+        var 새상행역 = 2L;
+        var 새하행역 = 1L;
+        //then 에러를 발생시킨다
+        assertThrows(InvalidDownStationException.class, () -> {
             line.addSection(새상행역, 새하행역, 20L);
         });
 
