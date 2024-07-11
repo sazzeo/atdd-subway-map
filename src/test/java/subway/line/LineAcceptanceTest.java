@@ -89,7 +89,7 @@ public class LineAcceptanceTest {
 
             //When 한 노선을 조회하면
             var location = response.header(HttpHeaders.LOCATION);
-            var lineResponse = LineApiRequest.getLine(location);
+            var lineResponse = LineApiRequest.노선을_조회한다(location);
 
             // Then 해당 노선이 조회된다.
 
@@ -106,7 +106,7 @@ public class LineAcceptanceTest {
         @Test
         void showLineWhenNotExist() {
             // When 조회하려는 노선이 존재하지 않으면
-            var response = LineApiRequest.getLine("/lines/0");
+            var response = LineApiRequest.노선을_조회한다("/lines/0");
             // Then 400 상태코드를 반환한다.
             assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
@@ -128,7 +128,7 @@ public class LineAcceptanceTest {
             var updateResponse =LineApiRequest.update(location, "3호선", "bg-orange-500");
 
             //When 조회하면
-            var jsonPath = LineApiRequest.getLine(location).jsonPath();
+            var jsonPath = LineApiRequest.노선을_조회한다(location).jsonPath();
 
             //Then 수정된 결과가 반환된다.
             assertAll(() -> {
