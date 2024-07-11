@@ -44,8 +44,8 @@ public class SectionAcceptanceTest {
         @Test
         void test1() {
             //given 기존 하행종점역이 새로운 구간의 상행 종점역이 아니면
-            var request = (Map.of("downStationId", 삼성역,
-                    "upStationId", 잠실역,
+            var request = (Map.of("upStationId", 삼성역,
+                    "downStationId", 잠실역,
                     "distance", 0));
 
             //when 새 구간 등록시
@@ -56,16 +56,19 @@ public class SectionAcceptanceTest {
                     .then().log().all()
                     .extract().response();
 
-            //then 400 상태코드를 반환한다
-            assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+            //then 400 상태코드와 해당하는 message를 반환한다
+            assertAll(() -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+                assertThat(response.jsonPath().getString("message")).isEqualTo("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
+            });
         }
 
         @DisplayName("이미 노선에 등록되어있는 역을 하행종점역으로 등록하면 400 상태코드를 반환한다.")
         @Test
         void test2() {
             //given 이미 노선에 등록되어있는 역을 하행종점역으로 등록하면
-            var request = (Map.of("downStationId", 최초하행종점역,
-                    "upStationId", 최초상행종점역,
+            var request = (Map.of("upStationId", 최초하행종점역,
+                    "downStationId", 최초상행종점역,
                     "distance", 10));
 
             //when 새 구간 등록시
@@ -76,8 +79,11 @@ public class SectionAcceptanceTest {
                     .then().log().all()
                     .extract().response();
 
-            //then 400 상태코드를 반환한다
-            assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+            //then 400 상태코드와 해당하는 message를 반환한다
+            assertAll(() -> {
+                assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+                assertThat(response.jsonPath().getString("message")).isEqualTo("하행역으로 등록하려는 역이 이미 존재합니다.");
+            });
         }
 
 
@@ -85,8 +91,8 @@ public class SectionAcceptanceTest {
         @Test
         void test3() {
             //given 새로운 구간 등록에 성공하면
-            var request = (Map.of("downStationId", 최초하행종점역,
-                    "upStationId", 삼성역,
+            var request = (Map.of("upStationId", 최초하행종점역,
+                    "downStationId", 삼성역,
                     "distance", 10));
 
             var createdResponse = RestAssured.given().log().all()
