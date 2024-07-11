@@ -84,10 +84,16 @@ public class LineService {
 
     @Transactional
     public void addSection(final Long id, final AddSectionRequest request) {
-        var line = getLineById(id);
+        Line line = getLineById(id);
         var upStation = getStationById(request.getUpStationId());
         var downStation = getStationById(request.getDownStationId());
         line.addSection(upStation.getId(), downStation.getId(), request.getDistance());
+    }
+
+    @Transactional
+    public void removeSection(final Long id, final Long stationId) {
+        Line line = getLineById(id);
+        line.removeLastStation(stationId);
     }
 
     private Station getStationById(final Long id) {
