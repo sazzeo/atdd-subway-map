@@ -5,6 +5,7 @@ import subway.station.Station;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Embeddable
 public class Sections {
@@ -13,7 +14,7 @@ public class Sections {
     private List<Section> sections = new ArrayList<>();
 
     public void add(final Section section) {
-        this.sections.add(section);
+        sections.add(section);
     }
 
     public Long getLastDownStationId() {
@@ -24,6 +25,15 @@ public class Sections {
         return sections.stream()
                 .map(Section::getUpStationId)
                 .anyMatch(id -> id.equals(stationId));
+    }
+
+    public List<Long> getStationIds() {
+        List<Long> stationIds = sections.stream()
+                .map(Section::getUpStationId)
+                .collect(Collectors.toList());
+
+        stationIds.add(getLastDownStationId());
+        return stationIds;
     }
 
 }
