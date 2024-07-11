@@ -13,6 +13,8 @@ import subway.station.Station;
 import subway.station.StationRepository;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -40,19 +42,33 @@ public class LineService {
                         new Section(upStation.getId(), downStation.getId(), request.getDistance())
                 ));
 
-        return LineResponse.from(line);
+        return LineResponse.from(line, getLineStations(line));
     }
 
     public List<LineResponse> getLines() {
-        return lineRepository.findAllJoinLine().stream()
-                .map(LineResponse::from)
-                .collect(Collectors.toList());
+        List<Line> lines = lineRepository.findAll();
+        Set<Long> stationsIds = lines.stream()
+                .flatMap(line -> line.getStationIds().stream())
+                .collect(Collectors.toSet());
+
+        Map<Long, Station> stationMap = stationRepository.findByIdIn(stationsIds)
+                .stream()
+                .collect(Collectors.toMap(Station::getId, (station -> station)));
+
+        return lines.stream()
+                .map(line ->
+                        LineResponse.from(line,
+                                stationsIds.stream()
+                                        .map(stationMap::get)
+                                        .collect(Collectors.toList()))
+                ).collect(Collectors.toList());
     }
 
     public LineResponse getLineResponse(final Long id) {
-        var line = getLineById(id);
-        return LineResponse.from(line);
+        Line line = getLineById(id);
+        return LineResponse.from(line, getLineStations(line));
     }
+
 
     @Transactional
     public void modify(final Long id, final UpdateLineRequest request) {
@@ -66,6 +82,14 @@ public class LineService {
         lineRepository.delete(line);
     }
 
+    @Transactional
+    public void addSection(final Long id, final AddSectionRequest request) {
+        var line = getLineById(id);
+        var upStation = getStationById(request.getUpStationId());
+        var downStation = getStationById(request.getDownStationId());
+        line.addSection(upStation.getId(), downStation.getId(), request.getDistance());
+    }
+
     private Station getStationById(final Long id) {
         return stationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역입니다."));
@@ -76,11 +100,8 @@ public class LineService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
     }
 
-    @Transactional
-    public void addSection(final Long id, final AddSectionRequest request) {
-        var line = getLineById(id);
-        var upStation = getStationById(request.getUpStationId());
-        var downStation = getStationById(request.getDownStationId());
-        line.addSection(upStation.getId(), downStation.getId(), request.getDistance());
+    private List<Station> getLineStations(final Line line) {
+        return stationRepository.findByIdIn(line.getStationIds());
     }
+
 }

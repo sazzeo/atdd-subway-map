@@ -59,4 +59,9 @@ public class Line {
         }
         sections.add(new Section(upStationId, downStationId, distance));
     }
+
+    public List<Long> getStationIds() {
+        return sections.getStationIds();
+    }
+
 }

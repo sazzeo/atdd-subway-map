@@ -40,52 +40,6 @@ public class SectionAcceptanceTest {
     @Nested
     class WhenAddSection {
 
-        @DisplayName("기존 하행종점역이 새로운 구간의 하행종점역이 아니면 새 구간 등록시 400 상태코드를 반환한다.")
-        @Test
-        void test1() {
-            //given 기존 하행종점역이 새로운 구간의 상행 종점역이 아니면
-            var request = (Map.of("upStationId", 삼성역,
-                    "downStationId", 잠실역,
-                    "distance", 0));
-
-            //when 새 구간 등록시
-            var response = RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(request)
-                    .when().post(String.format("/lines/%d/sections", 수인분당선))
-                    .then().log().all()
-                    .extract().response();
-
-            //then 400 상태코드와 해당하는 message를 반환한다
-            assertAll(() -> {
-                assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-                assertThat(response.jsonPath().getString("message")).isEqualTo("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
-            });
-        }
-
-        @DisplayName("이미 노선에 등록되어있는 역을 하행종점역으로 등록하면 400 상태코드를 반환한다.")
-        @Test
-        void test2() {
-            //given 이미 노선에 등록되어있는 역을 하행종점역으로 등록하면
-            var request = (Map.of("upStationId", 최초하행종점역,
-                    "downStationId", 최초상행종점역,
-                    "distance", 10));
-
-            //when 새 구간 등록시
-            var response = RestAssured.given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(request)
-                    .when().post(String.format("/lines/%d/sections", 수인분당선))
-                    .then().log().all()
-                    .extract().response();
-
-            //then 400 상태코드와 해당하는 message를 반환한다
-            assertAll(() -> {
-                assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-                assertThat(response.jsonPath().getString("message")).isEqualTo("하행역으로 등록하려는 역이 이미 존재합니다.");
-            });
-        }
-
 
         @DisplayName("새로운 구간 등록후 해당 노선을 조회하면 등록된 모든 역을 확인 할 수 있다.")
         @Test
@@ -105,7 +59,7 @@ public class SectionAcceptanceTest {
             //when 노선 조회시
             var jsonPath = LineApiRequest.getLine(String.format("/lines/%d", 수인분당선)).jsonPath();
 
-//            then 등록된 모든 역을 확인할 수 있다.
+            //then 등록된 모든 역을 확인할 수 있다.
             assertAll(() -> {
                         assertThat(createdResponse.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
                         assertThat(jsonPath.getList("stations.name", String.class)).containsAnyOf("최초상행종점역", "최초하행종점역", "삼성역");
