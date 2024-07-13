@@ -13,26 +13,21 @@ import subway.station.Station;
 import subway.station.StationRepository;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
-@Transactional(readOnly = true)
+@Transactional
 @Service
-public class LineService {
+public class LineCommandService {
 
     private final LineRepository lineRepository;
     private final StationRepository stationRepository;
 
-    public LineService(final LineRepository lineRepository, final StationRepository stationRepository) {
+    public LineCommandService(final LineRepository lineRepository, final StationRepository stationRepository) {
         this.lineRepository = lineRepository;
         this.stationRepository = stationRepository;
     }
 
-    @Transactional
     public LineResponse saveLine(final CreateLineRequest request) {
-
         var upStation = this.getStationById(request.getUpStationId());
         var downStation = this.getStationById(request.getDownStationId());
 
@@ -45,44 +40,16 @@ public class LineService {
         return LineResponse.from(line, getLineStations(line));
     }
 
-    public List<LineResponse> getLines() {
-        List<Line> lines = lineRepository.findAll();
-        Set<Long> stationsIds = lines.stream()
-                .flatMap(line -> line.getStationIds().stream())
-                .collect(Collectors.toSet());
-
-        Map<Long, Station> stationMap = stationRepository.findByIdIn(stationsIds)
-                .stream()
-                .collect(Collectors.toMap(Station::getId, (station -> station)));
-
-        return lines.stream()
-                .map(line ->
-                        LineResponse.from(line,
-                                stationsIds.stream()
-                                        .map(stationMap::get)
-                                        .collect(Collectors.toList()))
-                ).collect(Collectors.toList());
-    }
-
-    public LineResponse getLineResponse(final Long id) {
-        Line line = getLineById(id);
-        return LineResponse.from(line, getLineStations(line));
-    }
-
-
-    @Transactional
     public void modify(final Long id, final UpdateLineRequest request) {
         var line = getLineById(id);
         line.update(request.getName(), request.getColor());
     }
 
-    @Transactional
     public void delete(final Long id) {
         var line = getLineById(id);
         lineRepository.delete(line);
     }
 
-    @Transactional
     public void addSection(final Long id, final AddSectionRequest request) {
         Line line = getLineById(id);
         var upStation = getStationById(request.getUpStationId());
@@ -90,7 +57,6 @@ public class LineService {
         line.addSection(upStation.getId(), downStation.getId(), request.getDistance());
     }
 
-    @Transactional
     public void removeSection(final Long id, final Long stationId) {
         Line line = getLineById(id);
         line.removeLastStation(stationId);
