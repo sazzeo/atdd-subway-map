@@ -1,10 +1,5 @@
 package subway.line.domain;
 
-import subway.line.exception.InsufficientStationsException;
-import subway.line.exception.InvalidDownStationException;
-import subway.line.exception.InvalidUpStationException;
-import subway.line.exception.NotTerminusStationException;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -50,13 +45,6 @@ public class Line {
     }
 
     public void addSection(final Long upStationId, final Long downStationId, final Long distance) {
-        if (!sections.isLastStation(upStationId)) {
-            throw new InvalidUpStationException("새로등록하려는 상행역이 기존 하행역이 아닙니다.");
-        }
-
-        if (sections.isUpStationAlreadyExists(downStationId)) {
-            throw new InvalidDownStationException("하행역으로 등록하려는 역이 이미 존재합니다.");
-        }
         sections.add(new Section(upStationId, downStationId, distance));
     }
 
@@ -65,13 +53,7 @@ public class Line {
     }
 
     public void removeLastStation(final Long stationId) {
-        if(!sections.isLastStation(stationId)) {
-            throw new NotTerminusStationException("삭제하려는 역이 종착역이 아닙니다.");
-        }
-        if(sections.hasOnlyOneSection()) {
-            throw new InsufficientStationsException("구간이 1개밖에 없어 역을 삭제할 수 없습니다.");
-        }
-        sections.removeLastStation();
+        sections.removeLastStation(stationId);
     }
 
 }
