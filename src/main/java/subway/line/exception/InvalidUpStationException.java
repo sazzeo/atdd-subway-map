@@ -1,6 +1,8 @@
 package subway.line.exception;
 
-public class InvalidUpStationException extends RuntimeException {
+import subway.exceptions.BaseException;
+
+public class InvalidUpStationException extends BaseException {
     public InvalidUpStationException(final String message) {
         super(message);
     }
