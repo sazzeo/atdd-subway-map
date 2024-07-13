@@ -3,10 +3,7 @@ package subway.line.domain;
 import subway.line.exception.SectionDistanceNotValidException;
 import subway.line.exception.SectionNotValidException;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Section {
@@ -55,5 +52,10 @@ public class Section {
 
     public Long getDistance() {
         return distance;
+    }
+
+    public void updateDownStationAndDistance(final Long downStationId,final Long newDistance) {
+        this.downStationId = downStationId;
+        this.distance = newDistance;
     }
 }

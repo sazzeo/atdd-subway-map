@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import subway.line.exception.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,21 +42,6 @@ class SectionsTest {
         assertThat(sectionIds).containsExactly(1L, 2L, 3L, 4L);
     }
 
-
-    @DisplayName("새로 등록하려는 역이 기존 하행역이 아닌 경우 에러를 발생시킨다")
-    @Test
-    void addTest1() {
-        //Given 기존 노선에
-        var sections = new Sections();
-        sections.add(new Section(역1, 역2, 10L));
-
-        //When 새로 등록하려는 역이 기존 하행역이 아닌 경우
-        //Then 에러를 발생시킨다
-        assertThrows(InvalidUpStationException.class, () ->
-                sections.add(new Section(역1, 역3, 20L))
-        );
-    }
-
     @DisplayName("하행역으로 등록하려는 역이 이미 존재하는 경우 에러를 발생시킨다")
     @Test
     void addTest2() {
@@ -84,9 +72,23 @@ class SectionsTest {
         });
     }
 
+    @DisplayName("사이에 넣으려는 구간이 기존 구간보다 거리가 같거나 크면 에러를 반환한다")
+    @Test
+    void addTest5() {
+        var sections = new Sections();
+        sections.add(new Section(역1, 역2, 10L));
+        sections.add(new Section(역2, 역3, 10L));
+        sections.add(new Section(역3, 역4, 10L));
+
+        var 새구간하행역 = 6L;
+        assertThrows(LineDistanceNotValidException.class, () -> {
+            sections.add(new Section(역2, 새구간하행역, 10L));
+        });
+
+    }
 
 
-    @DisplayName("기존 구간 가운데에 역을 추가할 수 있다")
+    @DisplayName("기존 구간 중간에 역을 추가할 수 있다")
     @Test
     void addTest4() {
         var sections = new Sections();
@@ -96,10 +98,9 @@ class SectionsTest {
 
 
         var 새역 = 5L;
+        sections.add(new Section(역2, 새역, 9L));
 
-        sections.add(new Section(역2, 새역, 10L));
-
-
+        assertThat(sections.getAllStationIds()).containsExactly(역1, 역2, 새역, 역3, 역4);
     }
 
     ///////////////////////////////////////////////////////////
@@ -163,4 +164,47 @@ class SectionsTest {
     }
 
 
+    @Test
+    void 임시테스트() {
+        Set<Long> sets = new HashSet<>();
+        sets.add(1L);
+        sets.add(2222L);
+        sets.add(3L);
+        sets.add(4L);
+
+        Set<Long> sets2 = new HashSet<>();
+        sets2.add(2222L);
+        sets2.add(3L);
+        sets2.add(4L);
+
+        sets.removeAll(sets2);
+        System.out.println(sets);
+        Long a = 22222L;
+        Long b = 22222L;
+
+
+        System.out.println(a==b);
+
+    }
+
+    @Test
+    void setTest() {
+        Set<Long> sets = new HashSet<>();
+        Long a = 22222L;
+        Long b = 22222L;
+        sets.add(a);
+        sets.add(b);
+        System.out.println(sets);
+        System.out.println(a==b); //이퀄스로 비교하니까 당연한거네
+
+
+        Set<Long> sets2 = new HashSet<>();
+        sets2.add(b);
+
+        sets2.removeAll(sets);
+
+        System.out.println(sets2);
+
+
+    }
 }

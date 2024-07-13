@@ -61,7 +61,6 @@ public class SectionAcceptanceTest {
 
         }
 
-
         @DisplayName("기존 하행종점역이 새로운 구간의 상행종점역이 아니면 새 구간 등록시 400 상태코드를 반환한다.")
         @Test
         void failTest1() {
@@ -85,6 +84,8 @@ public class SectionAcceptanceTest {
             //then 400 상태코드를 반환한다
             assertThat(생성_결과.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
+
+
 
     }
 
