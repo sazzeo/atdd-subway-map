@@ -3,6 +3,7 @@ package subway.line.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.line.domain.Line;
+import subway.line.exception.NonExistentLineException;
 import subway.line.payload.LineResponse;
 import subway.line.repository.LineRepository;
 import subway.station.Station;
@@ -54,7 +55,7 @@ public class LineQueryService {
 
     private Line getById(final Long id) {
         return lineRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
+                .orElseThrow(() -> new NonExistentLineException("존재하지 않는 지하철 노선입니다."));
     }
 
     private List<Station> getLineStations(final Line line) {

@@ -48,7 +48,6 @@ public class SectionAcceptanceTest {
         void addSection() {
             //given 새로운 구간 등록에 성공하면
             var 신규구간 = new AddSectionRequest(최초하행종점역, 삼성역, 10L);
-
             var 생성_결과 = 구간을_추가한다(수인분당선, 신규구간);
 
             //when 노선 조회시
@@ -63,6 +62,31 @@ public class SectionAcceptanceTest {
 
         }
 
+
+        @DisplayName("기존 하행종점역이 새로운 구간의 상행종점역이 아니면 새 구간 등록시 400 상태코드를 반환한다.")
+        @Test
+        void failTest1() {
+            //given 기존 구간에
+            //when 추가하는 역이 기존의 하행종점역이 아닌 경우
+            var 신규구간 = new AddSectionRequest(최초상행종점역, 삼성역, 10L);
+            var 생성_결과 = 구간을_추가한다(수인분당선, 신규구간);
+
+            //then 400 상태코드를 반환한다
+            assertThat(생성_결과.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        }
+
+        @DisplayName("이미 노선에 등록되어있는 역을 하행종점역으로 등록하면 400 상태코드를 반환한다.")
+        @Test
+        void failTest2() {
+            //given 기존 구간에
+            //when 이미 노선에 등록되어있는 역을 하행종점역으로 등록하면
+            var 신규구간 = new AddSectionRequest(최초하행종점역, 최초상행종점역, 10L);
+            var 생성_결과 = 구간을_추가한다(수인분당선, 신규구간);
+
+            //then 400 상태코드를 반환한다
+            assertThat(생성_결과.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        }
+
     }
 
     @Nested
@@ -71,7 +95,7 @@ public class SectionAcceptanceTest {
         @DisplayName("역 삭제에 성공후 노선을 조회하면 삭제된 역이 조회되지 않는다.")
         @Test
         void deleteSection() {
-            //given 신규구간을 추가 후
+            //given 신규구간 추가 후
             var 신규구간 = new AddSectionRequest(최초하행종점역, 삼성역, 10L);
             구간을_추가한다(수인분당선, 신규구간);
 
@@ -86,6 +110,33 @@ public class SectionAcceptanceTest {
                         assertThat(노선.getList("stations.name", String.class)).containsExactly("최초상행종점역", "최초하행종점역");
                     }
             );
+        }
+
+
+        @DisplayName("제거하려는 역이 선택된 노선의 하행종점역이 아니면 400 상태코드를 반환한다.")
+        @Test
+        void failTest1() {
+            //given 신규구간 추가 후
+            var 신규구간 = new AddSectionRequest(최초하행종점역, 삼성역, 10L);
+            구간을_추가한다(수인분당선, 신규구간);
+
+            //when 하행종점역이 아닌 역을 삭제하면
+            var 삭제_결과 = 노선에서_역을_삭제한다(수인분당선, 최초하행종점역);
+
+            //then 400 상태코드를 반환한다
+            assertThat(삭제_결과.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        }
+
+        @DisplayName("역이 2개 이하로 존재하는 경우 삭제시 400 상태코드를 반환한다.")
+        @Test
+        void failTest2() {
+            //given 역이 2개 이하로 존재하는 경우
+
+            //when 삭제시
+            var 삭제_결과 = 노선에서_역을_삭제한다(수인분당선, 최초하행종점역);
+
+            //then 400 상태코드를 반환한다
+            assertThat(삭제_결과.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
         }
 
     }

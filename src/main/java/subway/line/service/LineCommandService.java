@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import subway.line.domain.Line;
 import subway.line.domain.Section;
+import subway.line.exception.NonExistentLineException;
 import subway.line.payload.AddSectionRequest;
 import subway.line.payload.CreateLineRequest;
 import subway.line.payload.LineResponse;
@@ -11,6 +12,7 @@ import subway.line.payload.UpdateLineRequest;
 import subway.line.repository.LineRepository;
 import subway.station.Station;
 import subway.station.StationRepository;
+import subway.station.exception.NonExistentStationException;
 
 import java.util.List;
 
@@ -64,12 +66,12 @@ public class LineCommandService {
 
     private Station getStationById(final Long id) {
         return stationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역입니다."));
+                .orElseThrow(() -> new NonExistentStationException("존재하지 않는 역입니다."));
     }
 
     private Line getLineById(final Long id) {
         return lineRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 지하철 노선입니다."));
+                .orElseThrow(() -> new NonExistentLineException("존재하지 않는 지하철 노선입니다."));
     }
 
     private List<Station> getLineStations(final Line line) {
