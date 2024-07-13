@@ -1,4 +1,4 @@
-package subway.station;
+package subway.acceptance;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.DisplayName;

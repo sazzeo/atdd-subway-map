@@ -1,4 +1,4 @@
-package subway.line;
+package subway.acceptance;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
