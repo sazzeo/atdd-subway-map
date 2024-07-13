@@ -1,13 +1,9 @@
 package subway.line.domain;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import subway.line.exception.InsufficientStationsException;
-import subway.line.exception.InvalidDownStationException;
-import subway.line.exception.InvalidUpStationException;
-import subway.line.exception.NotTerminusStationException;
+import subway.line.exception.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,11 +33,12 @@ class SectionsTest {
         sections.add(new Section(역3, 역4, 10L));
 
         //when 모든 구간을 조회하면
-        var sectionIds = sections.getStationIds();
+        var sectionIds = sections.getAllStationIds();
 
         // Then 역Id를 등록한 순서대로 반환한다
         assertThat(sectionIds).containsExactly(1L, 2L, 3L, 4L);
     }
+
 
     @DisplayName("새로 등록하려는 역이 기존 하행역이 아닌 경우 에러를 발생시킨다")
     @Test
@@ -71,6 +68,42 @@ class SectionsTest {
         );
     }
 
+    ///////////////////////////////////////////////////////////
+    @DisplayName("기존 구간에 추가하려는 상행종점역이 존재하지 않으면 에러를 발생시킨다")
+    @Test
+    void addTest3() {
+        var sections = new Sections();
+        sections.add(new Section(역1, 역2, 10L));
+        sections.add(new Section(역2, 역3, 10L));
+        sections.add(new Section(역3, 역4, 10L));
+
+        var 새구간상행역 = 5L;
+        var 새구간하행역 = 6L;
+        assertThrows(LineHasNoStationException.class, () -> {
+            sections.add(new Section(새구간상행역, 새구간하행역, 10L));
+        });
+    }
+
+
+
+    @DisplayName("기존 구간 가운데에 역을 추가할 수 있다")
+    @Test
+    void addTest4() {
+        var sections = new Sections();
+        sections.add(new Section(역1, 역2, 10L));
+        sections.add(new Section(역2, 역3, 10L));
+        sections.add(new Section(역3, 역4, 10L));
+
+
+        var 새역 = 5L;
+
+        sections.add(new Section(역2, 새역, 10L));
+
+
+    }
+
+    ///////////////////////////////////////////////////////////
+
     @DisplayName("기존 하행역을 상행역으로 하는 구간을 추가한다")
     @Test
     void addSuccessTest() {
@@ -82,9 +115,8 @@ class SectionsTest {
         sections.add(new Section(역2, 역3, 10L));
 
         //Then 다시 조회했을때 추가된 역을 확인 할 수 있다
-        assertThat(sections.getStationIds()).containsExactly(역1,역2 ,역3);
+        assertThat(sections.getAllStationIds()).containsExactly(역1, 역2, 역3);
     }
-
 
 
     @DisplayName("삭제 하려는 역이 종착역이 아닌 경우 에러를 발생시킨다")
@@ -119,17 +151,16 @@ class SectionsTest {
 
     @DisplayName("구간이 2개 이상일 떄는 종착역 삭제에 성공한다")
     @Test
-    void removeSuccessTest(){
+    void removeSuccessTest() {
         //Given 구간이 2개 이상일 때
         var sections = new Sections();
         sections.add(new Section(역1, 역2, 10L));
         sections.add(new Section(역2, 역3, 10L));
 
         sections.removeLastStation(역3);
-        assertThat(sections.getStationIds()).containsExactly(역1,역2);
+        assertThat(sections.getAllStationIds()).containsExactly(역1, 역2);
 
     }
-
 
 
 }
